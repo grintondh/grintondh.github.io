@@ -1,1 +1,10 @@
-[{"userGUID":"b5c580ad-57ab-47fd-8cfa-becbcbd52e84","userName":"admin","password":"123456","acceptLogin":true,"administratorRole":true}]
+[
+  {
+    "userGUID": "b5c580ad-57ab-47fd-8cfa-becbcbd52e84",
+    "userName": "admin",
+    "password": "123456",
+    "acceptLogin": true,
+    "administratorRole": true,
+    "NotDelete": false
+  }
+]

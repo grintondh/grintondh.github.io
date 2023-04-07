@@ -5,6 +5,14 @@
     "password": "123456",
     "acceptLogin": true,
     "administratorRole": true,
+    "NotDelete": true
+  }.
+  {
+    "userGUID": "71056865-1470-40c3-ae1f-d10b746f7e9e",
+    "userName": "user",
+    "password": "123456",
+    "acceptLogin": true,
+    "administratorRole": false,
     "NotDelete": false
   }
 ]

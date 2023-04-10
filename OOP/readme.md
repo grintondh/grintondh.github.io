@@ -1,6 +1,6 @@
-# Hướng dẫn sử dụng cái file JsonProcessing.cs và DataProcessing.cs
+# Hướng dẫn sử dụng file JsonProcessing.cs và DataProcessing.cs
 
-## [https://grintondh/OOP/JsonProcessing.cs](JsonProcessing.cs - Tải tại đây)
+## [JsonProcessing.cs - Tải tại đây](JsonProcessing.cs)
 
 ### 1. Khởi tạo
 
@@ -45,7 +45,7 @@ JArray chứa nội dung toàn bộ file json mới. Nếu không tồn tại fi
 
 Sử dụng hàm Export() của DataProcessing để xuất từ DataTable trả về dữ liệu JArray.
 
-## [https://grintondh/OOP/DataProcessing.cs](DataProcessing.cs - Tải tại đây)
+## [DataProcessing.cs - Tải tại đây](DataProcessing.cs)
 
 ### 1. Khởi tạo
 

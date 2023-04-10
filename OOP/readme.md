@@ -263,7 +263,7 @@ Hàm bao gồm Xóa / Chỉnh sửa các phần tử. Một phần tử chỉ b�
   
 - dataTable: DataTable đang quản lý dữ liệu show ra.
   
-- indexInTable: Thứ tự (index) của phần tử trong bảng dataTable tính từ 0 đến Limit - 1 (= Offset đến Offset + Limit - 1trong bảng đầy đủ).
+- indexInTable: Thứ tự (index) của phần tử trong bảng dataTable.
   
 #### Trả về
 

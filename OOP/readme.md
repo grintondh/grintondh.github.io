@@ -47,6 +47,18 @@ Sử dụng hàm Export() của DataProcessing để xuất từ DataTable trả
 
 ## [DataProcessing.cs - Tải tại đây](DataProcessing.cs)
 
+### Lưu ý
+
+KHÔNG XÓA / THÊM BẤT KỲ DỮ LIỆU GÌ ĐỐI VỚI DATATABLE ĐƯỢC TRẢ VỀ. VIỆC THÊM / BỚT SỬA ĐỀU PHẢI THỰC HIỆN QUA CÁC HÀM DƯỚI ĐÂY:
+
+```
+AddNewElement()
+DeleteElementInRange()
+UpdateElementsInRange() (Hàm bao gồm xóa và sửa. Hạn chế dùng)
+```
+
+ĐỐI VỚI VIỆC SỬA (SỬ DỤNG HÀM ```UpdateElementsInRange()``` HOẶC ```ChangeElementInRange()```), NGHIÊM CẤM THAY ĐỔI THỨ TỰ CÁC DỮ LIỆU (DÒNG).
+
 ### 1. Khởi tạo
 
 Tạo một biến với class DataProcessing. Ví dụ:
@@ -125,8 +137,41 @@ với length là số phần tử dữ liệu (rows - hàng).
 Các hàm thêm / sửa / xóa dưới đây sau khi thực hiện chức năng chính thì đều sẽ gọi hàm này để lấy dữ liệu. Do đó, Limit và Offset sẽ bị điều chỉnh dựa trên bảng mới.
   
 Nếu chuyển từ dữ liệu cũ sang dữ liệu mới, trừ khi gọi các hàm thêm / cập nhật / xóa ở dưới thì sẽ không lưu lại bất kỳ một thay đổi nào.
+
+### [NEW] 4. Lấy dữ liệu có điều kiện - GetList
   
-### 4. Lấy số phần tử dữ liệu - GetLength()
+#### Cú pháp
+  
+```
+<tên biến>.GetList(int _offset, int _limit, List<string> _query))
+```
+  
+- offset: Lấy từ vị trí nào
+- limit: Lấy báo nhiêu vị trí
+- query: Gồm n điều kiện. List query gồm 2 * n phần tử, phần tử 2 * i (chẵn) là tên property, 2 * i + 1 (lẻ tương ứng) là giá trị điều kiện.
+  
+#### Trả về
+
+DataTable chứa dữ liệu lấy ra. Nếu lấy lỗi hệ thống sẽ hiện hộp loại Dialog cho phép gọi lại hàm nếu bấm Retry.
+
+Nếu query có lẻ phần tử thì sẽ báo lỗi. Nếu bấm Retry liên tục vẫn sẽ gặp lỗi.
+  
+#### Lưu ý: Hiệu chỉnh Offset - Limit
+  
+Hệ thống tự động hiệu chỉnh Offset, Limit nếu không phù hợp:
+  
+```
+Limit = Math.Min(Math.Max(0, Limit), length);
+Offset = Math.Min(Math.Max(0, Offset), length - Limit);
+```
+  
+với length là số phần tử dữ liệu (rows - hàng).
+  
+Các hàm thêm / sửa / xóa dưới đây sau khi thực hiện chức năng chính thì đều sẽ gọi hàm này để lấy dữ liệu. Do đó, Limit và Offset sẽ bị điều chỉnh dựa trên bảng mới.
+  
+Nếu chuyển từ dữ liệu cũ sang dữ liệu mới, trừ khi gọi các hàm thêm / cập nhật / xóa ở dưới thì sẽ không lưu lại bất kỳ một thay đổi nào.
+  
+### 5. Lấy số phần tử dữ liệu - GetLength()
   
 #### Cú pháp
   
@@ -138,7 +183,7 @@ Nếu chuyển từ dữ liệu cũ sang dữ liệu mới, trừ khi gọi các
 
 Số nguyên chứa số lượng phần tử dữ liệu
   
-### 5. Lấy Offset và Limit gần nhất - GetOffsetLimitNow()
+### 6. Lấy Offset và Limit gần nhất - GetOffsetLimitNow()
   
 #### Cú pháp
 
@@ -150,7 +195,7 @@ Số nguyên chứa số lượng phần tử dữ liệu
   
 Một Tuple<int,int> (giống pair<int,int>). Trong đó .Item1 là Offset, .Item2 là Limit.
   
-### 6. Thêm phần tử mới - AddNewElement()
+### 7. Thêm phần tử mới - AddNewElement()
   
 #### Cú pháp
   
@@ -170,7 +215,7 @@ Hệ thống sẽ hiện Dialog thông báo kể cả thành công hay thất b�
  
 Để có được JObject element, ta dùng lệnh ```JObject.FromObject(data)```, với data ở class dạng tùy chỉnh.
   
-### 7. Xóa toàn bộ phần tử
+### 8. Xóa toàn bộ phần tử
   
 #### Cú pháp
   
@@ -182,7 +227,7 @@ Hệ thống sẽ hiện Dialog thông báo kể cả thành công hay thất b�
 
 Một DataTable rỗng (sau khi Clear toàn bộ phần tử đã lưu).
 
-### 8. Cập nhật toàn bộ phần tử trong danh sách (giới hạn bởi [Offset, Offset + Limit)) - UpdateElementsInRange()
+### 9. Cập nhật toàn bộ phần tử trong danh sách (Hạn chế dùng hàm này) - UpdateElementsInRange()
   
 #### Cú pháp
 
@@ -202,11 +247,13 @@ Hệ thống hiện ra dialog thành công sau khi hoàn thành cập nhật.
   
 #### Lưu ý
   
-- Hàm chỉ cập nhật các phần tử trong khoảng [Offset, Offset + Limit) đã được gọi trước đó bởi hàm GetList()
+[NEW] Hàm chỉ cập nhật các phần tử đã được gọi trước đó bởi hàm GetList()
   
-- Hàm bao gồm Xóa / Chỉnh sửa các phần tử. Một phần tử chỉ bị xóa nếu thỏa mãn: NotDelete = false và Delete = true. Nếu không xóa thì sẽ cập nhật lại với giá trị mới nhất trong dataTable.
+Hàm bao gồm Xóa / Chỉnh sửa các phần tử. Một phần tử chỉ bị xóa nếu thỏa mãn: NotDelete = false và Delete = true. Nếu không xóa thì sẽ cập nhật lại với giá trị mới nhất trong dataTable.
   
-### 9. Xóa một phần tử trong danh sách - (giới hạn bởi [Offset, Offset + Limit)) - DeleteElementInRange()
+[NEW] ĐỂ XÓA MỘT PHẦN TỬ, KHÔNG ĐƯỢC XÓA PHẦN TỬ TRONG DATATABLE ĐƯỢC TRẢ VỀ, BẮT BUỘC PHẢI SET DELETE = TRUE (KHÔNG SỬA NOTDELETE ĐỂ TRÁNH BỊ XÓA NHẦM).
+
+### 10. Xóa một phần tử trong danh sách - DeleteElementInRange()
   
 #### Cú pháp
 
@@ -219,23 +266,24 @@ Hệ thống hiện ra dialog thành công sau khi hoàn thành cập nhật.
 - indexInTable: Thứ tự (index) của phần tử trong bảng dataTable tính từ 0 đến Limit - 1 (= Offset đến Offset + Limit - 1trong bảng đầy đủ).
   
 #### Trả về
-  
-DataTable sau khi cập nhật các phần tử với Offset và Limit được giữ nguyên.
-  
+
+[NEW] Không có
+
 Hệ thống sẽ báo lỗi khi dataTable = null hoặc indexInTable >= Limit. Do đó cần luôn có giá trị mặc định tại đây.
   
 Nếu NotDelete = true thì hệ thống hiện dialog báo vượt quyền.
   
-Hệ thống hiện ra dialog thành công sau khi hoàn thành cập nhật.
+[NEW] Không có thông báo nếu thành công.
   
 #### Lưu ý
   
-- Hàm chỉ cập nhật các phần tử trong khoảng [Offset, Offset + Limit) đã được gọi trước đó bởi hàm GetList()
+Hàm chỉ cập nhật các phần tử đã được gọi trước đó bởi hàm GetList()
   
-- Một phần tử chỉ bị xóa nếu thỏa mãn: NotDelete = false và Delete = true. Nếu không xóa thì sẽ cập nhật lại với giá trị mới nhất trong dataTable.  
-  
+Một phần tử chỉ bị xóa nếu thỏa mãn: NotDelete = false và Delete = true. Nếu không xóa thì sẽ cập nhật lại với giá trị mới nhất trong dataTable.
 
-### 10. Sửa một phần tử trong danh sách - (giới hạn bởi [Offset, Offset + Limit)) - ChangeElementInRange()
+[NEW] ĐỂ XÓA MỘT PHẦN TỬ, KHÔNG ĐƯỢC XÓA PHẦN TỬ TRONG DATATABLE ĐƯỢC TRẢ VỀ, BẮT BUỘC PHẢI SET DELETE = TRUE (KHÔNG SỬA NOTDELETE ĐỂ TRÁNH BỊ XÓA NHẦM).
+  
+### 11. Sửa một phần tử trong danh sách - ChangeElementInRange()
   
 #### Cú pháp
 
@@ -249,17 +297,17 @@ Hệ thống hiện ra dialog thành công sau khi hoàn thành cập nhật.
   
 #### Trả về
   
-DataTable sau khi cập nhật các phần tử với Offset và Limit được giữ nguyên.
+[NEW] Không có.
   
 Hệ thống sẽ báo lỗi khi dataTable = null hoặc indexInTable >= Limit. Do đó cần luôn có giá trị mặc định tại đây.
-  
-Hệ thống hiện ra dialog thành công sau khi hoàn thành cập nhật.
+
+[NEW] Không có thông báo nếu thành công.
   
 #### Lưu ý
   
-Hàm chỉ cập nhật các phần tử trong khoảng [Offset, Offset + Limit) đã được gọi trước đó bởi hàm GetList()
+[NEW] Hàm chỉ cập nhật các phần tử đã được gọi trước đó bởi hàm GetList()
   
-### 11. Xuất dữ liệu - Export()
+### 12. Xuất dữ liệu - Export()
   
 #### Cú pháp
   
@@ -274,7 +322,7 @@ JArray chứa dữ liệu cuối cùng.
 Hệ thống hiện dialog thành công sau khi thành công.
   
 #### Lưu ý
-  
+
 Trong lúc xuất dữ liệu thì hệ thống sẽ tự động xóa trường Delete.
 
 Sử dụng JArray này cho hàm ```ExportJsonContentInDefaultFolder()``` của JsonProcessing. Ví dụ: 

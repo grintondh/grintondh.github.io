@@ -10,9 +10,6 @@ namespace Calculator
 {
     public class DataProcessing
     {
-        /// Note:
-        /// Never change / edit / delete returned DataTable!!!!
-        
         private static JArray ListElements { get; set; } = new JArray();
         private List<string> ShowColumnsName { get; set; } = new List<string>();
         private List<Type> ShowColumnsType { get; set; } = new List<Type>();
@@ -350,13 +347,12 @@ namespace Calculator
         /// </summary>
         /// <param name="_dataTable">(DataTable) DataGridView.DataSource</param>
         /// <param name="_indexInTable">Index in Table (with Offset and Limit)</param>
-        /// <returns>new DataTable, if it gets error, return null</returns>
-        public DataTable DeleteElementInRange(DataTable _dataTable, int _indexInTable)
+        public void DeleteElementInRange(DataTable _dataTable, int _indexInTable)
         {
             if (_dataTable == null || _indexInTable >= _dataTable.Rows.Count)
             {
                 MessageBox.Show("Couldn't delete element", "Error", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
-                return null;
+                return;
             }
             else
             {
@@ -371,18 +367,12 @@ namespace Calculator
                             break;
                         }
 
-                    DataTable _x;
-                    if (Condition == null)
-                        _x = GetList(Offset, Limit);
-                    else
-                        _x = GetList(Offset, Limit, Condition);
-                    MessageBox.Show("Deleted element!", "Success", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-                    return _x;
+                    return;
                 }
                 else
                 {
                     MessageBox.Show("You don't have permission to delete this element", "Error", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
-                    return null;
+                    return;
                 }
             }
         }
@@ -391,7 +381,6 @@ namespace Calculator
         /// </summary>
         /// <param name="_dataTable">(DataTable) DataGridView.DataSource</param>
         /// <param name="_indexInTable">Index in Table (with Offset and Limit)</param>
-        /// <returns></returns>
         public void ChangeElementInRange(DataTable _dataTable, int _indexInTable)
         {
             if (_dataTable == null || _indexInTable >= _dataTable.Rows.Count)

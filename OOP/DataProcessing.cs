@@ -217,15 +217,11 @@ namespace Calculator
             }
             catch (Exception ex)
             {
-                DialogResult _errorDialog = MessageBox.Show("Couldn't get or show data\n" + ex, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
+                DialogResult _errorDialog = MessageBox.Show("Couldn't get or show data\n" + ex, "Error", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
 
-                if (_errorDialog == DialogResult.Retry)
-                {
-                    GetList(_offset, _limit, Condition, Columns);
-                    return null;
-                }
-                else
-                    return null;
+                if (_errorDialog == DialogResult.OK)
+                    Application.Exit();
+                return null;
             }
         }
 
@@ -265,7 +261,7 @@ namespace Calculator
                     length++;
 
                     DataTable _x = GetList(length + 1, DEFAULT_LIMIT, Condition, Columns);
-                    MessageBox.Show("Added new element!", "Success", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                    MessageBox.Show("Added new element!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     return _x;
                 }
@@ -274,15 +270,8 @@ namespace Calculator
             }
             catch (Exception ex)
             {
-                DialogResult _errorDialog = MessageBox.Show("Couldn't add a new element\n" + ex, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
-
-                if (_errorDialog == DialogResult.Retry)
-                {
-                    AddNewElement(_element);
-                    return null;
-                }
-                else
-                    return null;
+                MessageBox.Show("Couldn't add a new element\n" + ex, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
             }
         }
 
@@ -299,7 +288,7 @@ namespace Calculator
         }
 
         /// <summary>
-        /// Delete a element in [Offset, Offset + Limit) range
+        /// Delete a element in range
         /// </summary>
         /// <param name="_dataTable">(DataTable) DataGridView.DataSource</param>
         /// <param name="_indexInTable">Index in Table (with Offset and Limit)</param>
@@ -307,7 +296,7 @@ namespace Calculator
         {
             if (_dataTable == null || _indexInTable >= _dataTable.Rows.Count)
             {
-                MessageBox.Show("Couldn't delete element", "Error", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+                MessageBox.Show("Couldn't delete element", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             else
@@ -327,13 +316,13 @@ namespace Calculator
                 }
                 else
                 {
-                    MessageBox.Show("You don't have permission to delete this element", "Error", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+                    MessageBox.Show("You don't have permission to delete this element", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
             }
         }
         /// <summary>
-        /// Change Element in [Offset, Offset + Limit) range
+        /// Change Element in range
         /// </summary>
         /// <param name="_dataTable">(DataTable) DataGridView.DataSource</param>
         /// <param name="_indexInTable">Index in Table (with Offset and Limit)</param>
@@ -341,7 +330,7 @@ namespace Calculator
         {
             if (_dataTable == null || _indexInTable >= _dataTable.Rows.Count)
             {
-                MessageBox.Show("Couldn't change element", "Error", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+                MessageBox.Show("Couldn't change element", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return ;
             }
             else

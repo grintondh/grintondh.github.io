@@ -108,7 +108,7 @@ JArray là kết quả từ hàm ```ImportJsonContentInDefaultFolder()``` của 
   
 Dữ liệu luôn phải có trường NotDelete.
   
-### 3. Lấy dữ liệu - GetList
+### [NEW] Lấy dữ liệu - GetList (đã xóa hàm)
   
 #### Cú pháp
   
@@ -116,45 +116,33 @@ Dữ liệu luôn phải có trường NotDelete.
 <tên biến>.GetList(int offset, int limit)
 ```
   
-- offset: Lấy từ vị trí nào
-- limit: Lấy báo nhiêu vị trí
-  
-#### Trả về
-
-DataTable chứa dữ liệu lấy ra. Nếu lấy lỗi hệ thống sẽ hiện hộp loại Dialog cho phép gọi lại hàm nếu bấm Retry.
-  
-#### Lưu ý: Hiệu chỉnh Offset - Limit
-  
-Hệ thống tự động hiệu chỉnh Offset, Limit nếu không phù hợp:
-  
-```
-Limit = Math.Min(Math.Max(0, Limit), length);
-Offset = Math.Min(Math.Max(0, Offset), length - Limit);
-```
-  
-với length là số phần tử dữ liệu (rows - hàng).
-  
-Các hàm thêm / sửa / xóa dưới đây sau khi thực hiện chức năng chính thì đều sẽ gọi hàm này để lấy dữ liệu. Do đó, Limit và Offset sẽ bị điều chỉnh dựa trên bảng mới.
-  
-Nếu chuyển từ dữ liệu cũ sang dữ liệu mới, trừ khi gọi các hàm thêm / cập nhật / xóa ở dưới thì sẽ không lưu lại bất kỳ một thay đổi nào.
-
 ### [NEW] 4. Lấy dữ liệu có điều kiện - GetList
   
 #### Cú pháp
   
 ```
-<tên biến>.GetList(int _offset, int _limit, List<string> _query))
+<tên biến>.public DataTable GetList(int _offset, int _limit, List<string> _query, List<string> _columns)
 ```
   
 - offset: Lấy từ vị trí nào
 - limit: Lấy báo nhiêu vị trí
 - query: Gồm n điều kiện. List query gồm 2 * n phần tử, phần tử 2 * i (chẵn) là tên property, 2 * i + 1 (lẻ tương ứng) là giá trị điều kiện.
+- columns: Tên các cột cần lấy.
+
+#### [NEW] Các trường hợp:
+- query hoặc columns là null: Không có điều kiện / Lấy toàn bộ cột.
+- query hoặc columns là List<string> {"SAME"}: Lấy điều kiện / các cột tại lần gọi trước đó. Mặc định ban đầu là null.
+- Các trường hợp khác: Lấy theo điều kiện / các cột.
   
 #### Trả về
 
-DataTable chứa dữ liệu lấy ra. Nếu lấy lỗi hệ thống sẽ hiện hộp loại Dialog cho phép gọi lại hàm nếu bấm Retry.
+- [NEW] DataTable chứa dữ liệu lấy ra. Nếu lấy lỗi hệ thống sẽ hiện hộp thoại báo lỗi. Bấm OK để thoát chương trình, Cancel để quay lại.
 
-Nếu query có lẻ phần tử thì sẽ báo lỗi. Nếu bấm Retry liên tục vẫn sẽ gặp lỗi.
+- Nếu query có lẻ phần tử thì sẽ báo lỗi.
+  
+- [NEW] Nếu columns không chứa hai cột "NotDelete" hoặc "delete" thì sẽ báo lỗi.
+  
+- [NEW] Nếu không tồn tại cột trong columns thì sẽ báo lỗi.
   
 #### Lưu ý: Hiệu chỉnh Offset - Limit
   
@@ -227,33 +215,15 @@ Hệ thống sẽ hiện Dialog thông báo kể cả thành công hay thất b�
 
 Một DataTable rỗng (sau khi Clear toàn bộ phần tử đã lưu).
 
-### 9. Cập nhật toàn bộ phần tử trong danh sách (Hạn chế dùng hàm này) - UpdateElementsInRange()
+### [NEW] Cập nhật toàn bộ phần tử trong danh sách - UpdateElementsInRange() (đã xóa hàm)
   
 #### Cú pháp
 
 ```
 <tên biến>.UpdateElementsInRange(DataTable dataTable)
 ```
-  
-- dataTable: DataTable đang quản lý dữ liệu show ra.
-  
-#### Trả về
-  
-DataTable sau khi cập nhật các phần tử với Offset và Limit được giữ nguyên.
-  
-Hệ thống sẽ báo lỗi khi dataTable = null. Do đó cần luôn có giá trị mặc định tại đây.
-  
-Hệ thống hiện ra dialog thành công sau khi hoàn thành cập nhật.
-  
-#### Lưu ý
-  
-[NEW] Hàm chỉ cập nhật các phần tử đã được gọi trước đó bởi hàm GetList()
-  
-Hàm bao gồm Xóa / Chỉnh sửa các phần tử. Một phần tử chỉ bị xóa nếu thỏa mãn: NotDelete = false và Delete = true. Nếu không xóa thì sẽ cập nhật lại với giá trị mới nhất trong dataTable.
-  
-[NEW] ĐỂ XÓA MỘT PHẦN TỬ, KHÔNG ĐƯỢC XÓA PHẦN TỬ TRONG DATATABLE ĐƯỢC TRẢ VỀ, BẮT BUỘC PHẢI SET DELETE = TRUE (KHÔNG SỬA NOTDELETE ĐỂ TRÁNH BỊ XÓA NHẦM).
 
-### 10. Xóa một phần tử trong danh sách - DeleteElementInRange()
+### 9. Xóa một phần tử trong danh sách - DeleteElementInRange()
   
 #### Cú pháp
 
@@ -267,23 +237,23 @@ Hàm bao gồm Xóa / Chỉnh sửa các phần tử. Một phần tử chỉ b�
   
 #### Trả về
 
-[NEW] Không có
+- [NEW] Không có
 
-Hệ thống sẽ báo lỗi khi dataTable = null hoặc indexInTable >= Limit. Do đó cần luôn có giá trị mặc định tại đây.
+- Hệ thống sẽ báo lỗi khi dataTable = null hoặc indexInTable >= Limit. Do đó cần luôn có giá trị mặc định tại đây.
   
-Nếu NotDelete = true thì hệ thống hiện dialog báo vượt quyền.
+- Nếu NotDelete = true thì hệ thống hiện dialog báo vượt quyền.
   
-[NEW] Không có thông báo nếu thành công.
+- [NEW] Không có thông báo nếu thành công.
   
 #### Lưu ý
   
-Hàm chỉ cập nhật các phần tử đã được gọi trước đó bởi hàm GetList()
+- Hàm chỉ cập nhật các phần tử đã được gọi trước đó bởi hàm GetList()
   
-Một phần tử chỉ bị xóa nếu thỏa mãn: NotDelete = false và Delete = true. Nếu không xóa thì sẽ cập nhật lại với giá trị mới nhất trong dataTable.
+- Một phần tử chỉ bị xóa nếu thỏa mãn: NotDelete = false và Delete = true. Nếu không xóa thì sẽ cập nhật lại với giá trị mới nhất trong dataTable.
 
-[NEW] ĐỂ XÓA MỘT PHẦN TỬ, KHÔNG ĐƯỢC XÓA PHẦN TỬ TRONG DATATABLE ĐƯỢC TRẢ VỀ, BẮT BUỘC PHẢI SET DELETE = TRUE (KHÔNG SỬA NOTDELETE ĐỂ TRÁNH BỊ XÓA NHẦM).
+- [NEW] ĐỂ XÓA MỘT PHẦN TỬ, KHÔNG ĐƯỢC XÓA PHẦN TỬ TRONG DATATABLE ĐƯỢC TRẢ VỀ, BẮT BUỘC PHẢI SET DELETE = TRUE (KHÔNG SỬA NOTDELETE ĐỂ TRÁNH BỊ XÓA NHẦM).
   
-### 11. Sửa một phần tử trong danh sách - ChangeElementInRange()
+### 10. Sửa một phần tử trong danh sách - ChangeElementInRange()
   
 #### Cú pháp
 
@@ -297,17 +267,17 @@ Một phần tử chỉ bị xóa nếu thỏa mãn: NotDelete = false và Delet
   
 #### Trả về
   
-[NEW] Không có.
+- [NEW] Không có.
   
-Hệ thống sẽ báo lỗi khi dataTable = null hoặc indexInTable >= Limit. Do đó cần luôn có giá trị mặc định tại đây.
+- Hệ thống sẽ báo lỗi khi dataTable = null hoặc indexInTable >= Limit. Do đó cần luôn có giá trị mặc định tại đây.
 
-[NEW] Không có thông báo nếu thành công.
+- [NEW] Không có thông báo nếu thành công.
   
 #### Lưu ý
   
-[NEW] Hàm chỉ cập nhật các phần tử đã được gọi trước đó bởi hàm GetList()
+- [NEW] Hàm chỉ cập nhật các phần tử đã được gọi trước đó bởi hàm GetList()
   
-### 12. Xuất dữ liệu - Export()
+### 11. Xuất dữ liệu - Export()
   
 #### Cú pháp
   
@@ -317,21 +287,21 @@ Hệ thống sẽ báo lỗi khi dataTable = null hoặc indexInTable >= Limit. 
   
 #### Trả về
   
-JArray chứa dữ liệu cuối cùng.
+- JArray chứa dữ liệu cuối cùng.
   
-Hệ thống hiện dialog thành công sau khi thành công.
+- Hệ thống hiện dialog thành công sau khi thành công.
   
 #### Lưu ý
 
-Trong lúc xuất dữ liệu thì hệ thống sẽ tự động xóa trường Delete.
+- Trong lúc xuất dữ liệu thì hệ thống sẽ tự động xóa trường Delete.
 
-Sử dụng JArray này cho hàm ```ExportJsonContentInDefaultFolder()``` của JsonProcessing. Ví dụ: 
+- Sử dụng JArray này cho hàm ```ExportJsonContentInDefaultFolder()``` của JsonProcessing. Ví dụ: 
   
 ```
 JsonProcessing.ExportJsonContentInDefaultFolder("data.json", data.Export());
 ```
   
-Toàn bộ các quá trình thêm / xóa / sửa đều không lưu lên file mà chỉ chỉnh sửa trên các mảng. Chỉ khi gọi hàm Export() rồi ExportJsonContentInDefaultFolder() thì dữ liệu mới được lưu vào file json.
+- Toàn bộ các quá trình thêm / xóa / sửa đều không lưu lên file mà chỉ chỉnh sửa trên các mảng. Chỉ khi gọi hàm Export() rồi ExportJsonContentInDefaultFolder() thì dữ liệu mới được lưu vào file json.
   
-Sau khi Export hãy Import lại dữ liệu mới rồi GetList để đảm bảo dữ liệu hiển thị là mới nhất.
+- Sau khi Export hãy Import lại dữ liệu mới rồi GetList để đảm bảo dữ liệu hiển thị là mới nhất.
   

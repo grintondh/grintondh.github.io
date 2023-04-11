@@ -16,6 +16,7 @@ namespace Calculator
         private static int length { get; set; }
         private static int Limit { get; set; }
         private static List<string> Condition { get; set; }
+        private static List<string> Columns { get; set; }
         private static int Offset { get; set; }
         private List<Tuple<int,int>> SelectedRow { get; set; } = new List<Tuple<int,int>>();
 
@@ -96,14 +97,32 @@ namespace Calculator
         /// </summary>
         /// <param name="_offset">First index you want to get</param>
         /// <param name="_limit">Number of elements you want to get</param>
+        /// <param name="_query">Queries List</param>
+        /// <param name="_columns">Columns List</param>
         /// <return>Return DataTable</return>
-        public DataTable GetList(int _offset, int _limit)
+        public DataTable GetList(int _offset, int _limit, List<string> _query, List<string> _columns)
         {
             try
             {
+                if (_query != null && _query.Count % 2 != 0 && (_query.Count != 1 || _query[0] != "SAME"))
+                    throw new Exception();
+                    
+
                 Offset = _offset;
                 Limit = _limit;
-                Condition = null;
+
+                if (_query != null && _query.Count == 1 && _query[0] == "SAME")
+                    Condition = Condition;
+                else 
+                    Condition = _query;
+
+                if (_columns != null && _columns.Count == 1 && _columns[0] == "SAME")
+                    Columns = Columns;    
+                else
+                    Columns = _columns;
+
+                if (Columns != null && (Columns.Contains("NotDelete") == false || Columns.Contains("delete") == false))
+                    throw new Exception();
 
                 /// Correction offset and limit value
                 Limit = Math.Min(Math.Max(0, Limit), length);
@@ -111,70 +130,37 @@ namespace Calculator
 
                 DataTable _dataTable = new DataTable();
 
-                for (int _j = 0; _j < ShowColumnsName.Count; _j++)
+                if(Columns != null)
                 {
-                    string _columnName = ShowColumnsName[_j];
-                    Type _columnType = ShowColumnsType[_j];
-                    _dataTable.Columns.Add(_columnName, _columnType);
+                    for (int _j = 0; _j < Columns.Count; _j++)
+                    {
+                        string _columnName = Columns[_j];
+                        bool _isExistColumn = false;
+
+                        for(int _k = 0; _k < ShowColumnsName.Count; _k++)
+                        {
+                            if(_columnName == ShowColumnsName[_k])
+                            {
+                                Type _columnType = ShowColumnsType[_k];
+                                _dataTable.Columns.Add(_columnName, _columnType);
+
+                                _isExistColumn = true;
+                                break;
+                            }
+                        }
+
+                        if (_isExistColumn == false)
+                            throw new Exception();
+                    }
                 }
-
-                SelectedRow.Clear();
-                int _gotCount = 0;
-
-                for (int _i = Offset; _i < Offset + Limit; _i++)
+                else
                 {
-                    DataRow _dataRow = _dataTable.NewRow();
-
-                    SelectedRow.Add(Tuple.Create<int,int>(_i, _gotCount));
-                    _gotCount++;
-
                     for (int _j = 0; _j < ShowColumnsName.Count; _j++)
                     {
                         string _columnName = ShowColumnsName[_j];
-                        _dataRow[_columnName] = ListElements[_i][_columnName];
+                        Type _columnType = ShowColumnsType[_j];
+                        _dataTable.Columns.Add(_columnName, _columnType);
                     }
-
-                    _dataTable.Rows.Add(_dataRow);
-                }
-
-                return _dataTable;
-            }
-            catch (Exception ex)
-            {
-                DialogResult _errorDialog = MessageBox.Show("Couldn't get or show data\n" + ex, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
-
-                if (_errorDialog == DialogResult.Retry)
-                {
-                    GetList(_offset, _limit);
-                    return null;
-                }
-                else
-                    return null;
-            }
-        }
-
-        public DataTable GetList(int _offset, int _limit, List<string> _query)
-        {
-            try
-            {
-                if (_query.Count % 2 != 0)
-                    throw new Exception();
-
-                Offset = _offset;
-                Limit = _limit;
-                Condition = _query;
-
-                /// Correction offset and limit value
-                Limit = Math.Min(Math.Max(0, Limit), length);
-                Offset = Math.Min(Math.Max(0, Offset), length - Limit);
-
-                DataTable _dataTable = new DataTable();
-
-                for (int _j = 0; _j < ShowColumnsName.Count; _j++)
-                {
-                    string _columnName = ShowColumnsName[_j];
-                    Type _columnType = ShowColumnsType[_j];
-                    _dataTable.Columns.Add(_columnName, _columnType);
                 }
 
                 SelectedRow.Clear();
@@ -186,13 +172,16 @@ namespace Calculator
 
                     bool _isSatisfy = true;
 
-                    for(int _j = 0; _j < _query.Count; _j += 2)
+                    if(Condition != null)
                     {
-                        var x = ListElements[_i][_query[_j]].ToString();
-                        if (ListElements[_i][_query[_j]].ToString() != _query[_j + 1])
+                        for (int _j = 0; _j < Condition.Count; _j += 2)
                         {
-                            _isSatisfy = false;
-                            break;
+                            var x = ListElements[_i][Condition[_j]].ToString();
+                            if (ListElements[_i][Condition[_j]].ToString() != Condition[_j + 1])
+                            {
+                                _isSatisfy = false;
+                                break;
+                            }
                         }
                     }
 
@@ -202,10 +191,21 @@ namespace Calculator
                     SelectedRow.Add(Tuple.Create<int,int>(_i, _gotCount));
                     _gotCount++;
 
-                    for (int _j = 0; _j < ShowColumnsName.Count; _j++)
+                    if(Columns != null)
                     {
-                        string _columnName = ShowColumnsName[_j];
-                        _dataRow[_columnName] = ListElements[_i][_columnName];
+                        for (int _j = 0; _j < Columns.Count; _j++)
+                        {
+                            string _columnName = Columns[_j];
+                            _dataRow[_columnName] = ListElements[_i][_columnName];
+                        }
+                    }
+                    else
+                    {
+                        for (int _j = 0; _j < ShowColumnsName.Count; _j++)
+                        {
+                            string _columnName = ShowColumnsName[_j];
+                            _dataRow[_columnName] = ListElements[_i][_columnName];
+                        }
                     }
 
                     _dataTable.Rows.Add(_dataRow);
@@ -221,7 +221,7 @@ namespace Calculator
 
                 if (_errorDialog == DialogResult.Retry)
                 {
-                    GetList(_offset, _limit);
+                    GetList(_offset, _limit, Condition, Columns);
                     return null;
                 }
                 else
@@ -264,7 +264,7 @@ namespace Calculator
 
                     length++;
 
-                    DataTable _x = GetList(length + 1, DEFAULT_LIMIT);
+                    DataTable _x = GetList(length + 1, DEFAULT_LIMIT, Condition, Columns);
                     MessageBox.Show("Added new element!", "Success", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
 
                     return _x;
@@ -295,51 +295,7 @@ namespace Calculator
             ListElements.Clear();
             length = 0;
 
-            return GetList(length + 1, Limit);
-        }
-
-        /// <summary>
-        /// Update elements (and delete selected rows, using Delete checkbox column) in [Offset, Offset + Limit) range
-        /// </summary>
-        /// <param name="_dataTable">(DataTable) DataGridView.DataSource</param>
-        /// <return>Return DataTable</return>
-        public DataTable UpdateElementsInRange(DataTable _dataTable)
-        {
-            if (_dataTable != null)
-            {
-                SelectedRow.Sort();
-                SelectedRow.Reverse();
-
-                foreach (Tuple<int, int> _i in SelectedRow)
-                {
-                    if (_dataTable.Rows[_i.Item2].Field<bool>("delete") == true && _dataTable.Rows[_i.Item2].Field<bool>("NotDelete") == false)
-                    {
-                        ListElements.RemoveAt(_i.Item1);
-                        length--;
-                    }
-                    else if (_dataTable.Rows[_i.Item2].Field<bool>("delete") == false)
-                    {
-                        for (int _j = 0; _j < ShowColumnsName.Count; _j++)
-                        {
-                            string _columnName = ShowColumnsName[_j];
-                            ListElements[_i.Item1][_columnName] = JToken.FromObject(_dataTable.Rows[_i.Item2].ItemArray[_j]);
-                        }
-                    }
-                }
-
-                DataTable _x;
-                if (Condition == null)
-                    _x = GetList(Offset, Limit);
-                else
-                    _x = GetList(Offset, Limit, Condition);
-                MessageBox.Show("Updated all elements!", "Success", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-                return _x;
-            }
-            else
-            {
-                MessageBox.Show("Couldn't get / update / delete element(s)\nYour DataGridView.DataSource is empty", "Error", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
-                return null;
-            }
+            return GetList(length + 1, Limit, Condition, Columns);
         }
 
         /// <summary>
@@ -393,10 +349,21 @@ namespace Calculator
                 foreach (var _i in SelectedRow)
                     if (_i.Item2 == _indexInTable)
                     {
-                        for (int _j = 0; _j < ShowColumnsName.Count; _j++)
+                        if(Columns != null)
                         {
-                            string _columnName = ShowColumnsName[_j];
-                            ListElements[_i.Item1][_columnName] = JToken.FromObject(_dataTable.Rows[_i.Item2].ItemArray[_j]);
+                            for (int _j = 0; _j < Columns.Count; _j++)
+                            {
+                                string _columnName = Columns[_j];
+                                ListElements[_i.Item1][_columnName] = JToken.FromObject(_dataTable.Rows[_i.Item2].ItemArray[_j]);
+                            }
+                        }
+                        else
+                        {
+                            for (int _j = 0; _j < ShowColumnsName.Count; _j++)
+                            {
+                                string _columnName = ShowColumnsName[_j];
+                                ListElements[_i.Item1][_columnName] = JToken.FromObject(_dataTable.Rows[_i.Item2].ItemArray[_j]);
+                            }
                         }
 
                         break;

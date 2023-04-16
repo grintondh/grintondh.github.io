@@ -67,7 +67,13 @@ Tạo một biến với class DataProcessing. Ví dụ:
 private DataProcessing dp = new DataProcessing();
 ```
 
-### 2. Nhập trường (field) - Import()
+### [NEW] 2. Trả về List<string> rỗng
+  
+```
+DataProcessing.emptyList
+```
+  
+### 3. Nhập trường (field) - Import()
 
 #### Cú pháp
 
@@ -88,7 +94,7 @@ Dữ liệu luôn phải có trường NotDelete.
   
 Hệ thống sẽ tự động thêm trường Delete vào dữ liệu với giá trị mặc định là false.
 
-### 3. Nhập dữ liệu (data) - Import()
+### 4. Nhập dữ liệu (data) - Import()
   
 #### Cú pháp
 
@@ -108,29 +114,30 @@ JArray là kết quả từ hàm ```ImportJsonContentInDefaultFolder()``` của 
   
 Dữ liệu luôn phải có trường NotDelete.
   
-### [NEW] Lấy dữ liệu - GetList (đã xóa hàm)
+### [NEW] 5. Lấy dữ liệu có điều kiện - GetList
   
 #### Cú pháp
   
 ```
-<tên biến>.GetList(int offset, int limit)
-```
-  
-### [NEW] 4. Lấy dữ liệu có điều kiện - GetList
-  
-#### Cú pháp
-  
-```
-<tên biến>.public DataTable GetList(int _offset, int _limit, List<string> _query, List<string> _columns)
+<tên biến>.GetList(int _offset, int _limit, List<string> _query, List<string> _columns, string _sorts)
+
+<tên biến>.GetList(int _offset, int _limit)
+
+<tên biến>.GetList(int _offset, int _limit, string _sort)
+
+<tên biến>.GetList(int _offset, int _limit, List<string> _query, string _sort)
+
+<tên biến>.GetList(int _offset, int _limit, List<string> _query, List<string> _columns)
 ```
   
 - offset: Lấy từ vị trí nào
 - limit: Lấy báo nhiêu vị trí
 - query: Gồm n điều kiện. List query gồm 2 * n phần tử, phần tử 2 * i (chẵn) là tên property, 2 * i + 1 (lẻ tương ứng) là giá trị điều kiện.
 - columns: Tên các cột cần lấy.
+- [NEW] sorts: Điều kiện sắp xếp, có dạng "<tên cột> asc/desc". Ví dụ: "id asc name desc": Sắp xếp tăng dần theo id, nếu trùng id thì giảm dần theo name.
 
 #### [NEW] Các trường hợp:
-- query hoặc columns là null: Không có điều kiện / Lấy toàn bộ cột.
+- [NEW] query hoặc columns là DataProcessing.emptyList: Không có điều kiện / Lấy toàn bộ cột.
 - query hoặc columns là List<string> {"SAME"}: Lấy điều kiện / các cột tại lần gọi trước đó. Mặc định ban đầu là null.
 - Các trường hợp khác: Lấy theo điều kiện / các cột.
   
@@ -159,7 +166,7 @@ Các hàm thêm / sửa / xóa dưới đây sau khi thực hiện chức năng 
   
 Nếu chuyển từ dữ liệu cũ sang dữ liệu mới, trừ khi gọi các hàm thêm / cập nhật / xóa ở dưới thì sẽ không lưu lại bất kỳ một thay đổi nào.
   
-### 5. Lấy số phần tử dữ liệu - GetLength()
+### 6. Lấy số phần tử dữ liệu - GetLength()
   
 #### Cú pháp
   
@@ -171,8 +178,8 @@ Nếu chuyển từ dữ liệu cũ sang dữ liệu mới, trừ khi gọi các
 
 Số nguyên chứa số lượng phần tử dữ liệu
   
-### 6. Lấy Offset và Limit gần nhất - GetOffsetLimitNow()
-  
+### 7. Lấy Offset và Limit gần nhất - GetOffsetLimitNow()
+ 
 #### Cú pháp
 
 ```
@@ -183,7 +190,7 @@ Số nguyên chứa số lượng phần tử dữ liệu
   
 Một Tuple<int,int> (giống pair<int,int>). Trong đó .Item1 là Offset, .Item2 là Limit.
   
-### 7. Thêm phần tử mới - AddNewElement()
+### 8. Thêm phần tử mới - AddNewElement()
   
 #### Cú pháp
   
@@ -203,7 +210,7 @@ Hệ thống sẽ hiện Dialog thông báo kể cả thành công hay thất b�
  
 Để có được JObject element, ta dùng lệnh ```JObject.FromObject(data)```, với data ở class dạng tùy chỉnh.
   
-### 8. Xóa toàn bộ phần tử
+### 9. Xóa toàn bộ phần tử
   
 #### Cú pháp
   
@@ -223,7 +230,7 @@ Một DataTable rỗng (sau khi Clear toàn bộ phần tử đã lưu).
 <tên biến>.UpdateElementsInRange(DataTable dataTable)
 ```
 
-### 9. Xóa một phần tử trong danh sách - DeleteElementInRange()
+### 10. Xóa một phần tử trong danh sách - DeleteElementInRange()
   
 #### Cú pháp
 
@@ -253,7 +260,7 @@ Một DataTable rỗng (sau khi Clear toàn bộ phần tử đã lưu).
 
 - [NEW] ĐỂ XÓA MỘT PHẦN TỬ, KHÔNG ĐƯỢC XÓA PHẦN TỬ TRONG DATATABLE ĐƯỢC TRẢ VỀ, BẮT BUỘC PHẢI SET DELETE = TRUE (KHÔNG SỬA NOTDELETE ĐỂ TRÁNH BỊ XÓA NHẦM).
   
-### 10. Sửa một phần tử trong danh sách - ChangeElementInRange()
+### 11. Sửa một phần tử trong danh sách - ChangeElementInRange()
   
 #### Cú pháp
 
@@ -277,7 +284,7 @@ Một DataTable rỗng (sau khi Clear toàn bộ phần tử đã lưu).
   
 - [NEW] Hàm chỉ cập nhật các phần tử đã được gọi trước đó bởi hàm GetList()
   
-### 11. Xuất dữ liệu - Export()
+### 12. Xuất dữ liệu - Export()
   
 #### Cú pháp
   
@@ -305,3 +312,20 @@ JsonProcessing.ExportJsonContentInDefaultFolder("data.json", data.Export());
   
 - Sau khi Export hãy Import lại dữ liệu mới rồi GetList để đảm bảo dữ liệu hiển thị là mới nhất.
   
+### [NEW] 13. Copy data sang một biến mới - CopyData()
+  
+#### Cú pháp
+  
+```
+<biến cũ>.CopyData(<biến mới>)
+```
+  
+#### Trả về
+  
+Không có
+
+#### Lưu ý
+  
+Sử dụng để:
+  
+- Tránh ảnh hưởng đến Offset và Limit cũ.

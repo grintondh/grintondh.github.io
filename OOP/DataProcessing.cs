@@ -13,24 +13,23 @@ namespace Learning_System.ExternalClass
 {
     public class DataProcessing
     {
-        private static JArray ListElements { get; set; } = new JArray();
+        private JArray ListElements { get; set; } = new JArray();
         private List<string> ShowColumnsName { get; set; } = new List<string>();
         private List<Type> ShowColumnsType { get; set; } = new List<Type>();
-        private static int length { get; set; }
-        private static int Limit { get; set; }
-        private static List<string> Condition { get; set; } = new List<string>();
-        private static List<string> Columns { get; set; } = new List<string>();
-        private static int Offset { get; set; }
+        private int length { get; set; }
+        private int Limit { get; set; }
+        private List<string> Condition { get; set; } = new List<string>();
+        private List<string> Columns { get; set; } = new List<string>();
+        private int Offset { get; set; }
         private List<Tuple<int, int>> SelectedRow { get; set; } = new List<Tuple<int, int>>();
         public static List<string> emptyList { get; } = new List<string>();
 
         private const int DEFAULT_LIMIT = 25;
-
+        
         /// <summary>
         /// Import data file
         /// </summary>
         /// <param name="_jsonDataList">Data which is parsed in JArray.</param>
-        /// IMPORTANT: Data needs to have "NotDelete" property
         /// <param name="_columns">List of columns' name you want to show</param>
         /// <param name="_columnsType">List of columns' type you want to show</param>
         public void Import(List<string> _columns, List<Type> _columnsType)
@@ -49,12 +48,9 @@ namespace Learning_System.ExternalClass
                 DialogResult _errorDialog = MessageBox.Show("Couldn't import data\n" + ex, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
 
                 if (_errorDialog == DialogResult.Retry)
-                {
                     Import(_columns, _columnsType);
-                    return;
-                }
-                else
-                    return;
+                    
+                return;
             }
         }
         public void Import(JArray _jsonDataList)
@@ -87,12 +83,9 @@ namespace Learning_System.ExternalClass
                 DialogResult _errorDialog = MessageBox.Show("Couldn't import data\n" + ex, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
 
                 if (_errorDialog == DialogResult.Retry)
-                {
                     Import(_jsonDataList);
-                    return;
-                }
-                else
-                    return;
+                    
+                return;
             }
         }
 
@@ -190,7 +183,7 @@ namespace Learning_System.ExternalClass
 
                             if (Condition[_j + 1].Length > 7 && Condition[_j + 1].Substring(0, 7) == "CONTAIN")
                             {
-                                string _compareValue = Condition[_j + 1].Substring(7, Condition[_j + 1].Length - 7);
+                                string _compareValue = Condition[_j + 1].Substring(8, Condition[_j + 1].Length - 8);
 
                                 if (x.Contains(_compareValue) == false)
                                 {
@@ -371,7 +364,28 @@ namespace Learning_System.ExternalClass
             }
             else
             {
-                if (_dataTable.Rows[_indexInTable].Field<bool>("NotDelete") == false)
+                if (_dataTable.Rows[_indexInTable].Table.Columns.Contains("NotDelete") == true)
+                {
+                    if (_dataTable.Rows[_indexInTable].Field<bool>("NotDelete") == false)
+                    {
+                        foreach (var _i in SelectedRow)
+                            if (_i.Item2 == _indexInTable)
+                            {
+                                ListElements.RemoveAt(_i.Item1);
+                                length--;
+
+                                break;
+                            }
+
+                        return;
+                    }
+                    else
+                    {
+                        MessageBox.Show("You don't have permission to delete this element", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+                else
                 {
                     foreach (var _i in SelectedRow)
                         if (_i.Item2 == _indexInTable)
@@ -382,11 +396,6 @@ namespace Learning_System.ExternalClass
                             break;
                         }
 
-                    return;
-                }
-                else
-                {
-                    MessageBox.Show("You don't have permission to delete this element", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
             }
@@ -532,16 +541,9 @@ namespace Learning_System.ExternalClass
         /// <param name="_x"></param>
         public void CopyData(DataProcessing _x)
         {
-            List<string> _newColumnName = new List<string>();
-            List<Type> _newColumnType = new List<Type>();
-            JArray _newListElements = new JArray();
-
-            foreach (var _p in ShowColumnsName)
-                _newColumnName.Add(_p);
-            foreach (var _p in ShowColumnsType)
-                _newColumnType.Add(_p);
-            foreach (var _p in ListElements)
-                _newListElements.Add(_p);
+            List<string> _newColumnName = new List<string>(ShowColumnsName);
+            List<Type> _newColumnType = new List<Type>(ShowColumnsType);
+            JArray _newListElements = new JArray(ListElements);
 
             _x.Import(_newColumnName, _newColumnType);
             _x.Import(_newListElements);

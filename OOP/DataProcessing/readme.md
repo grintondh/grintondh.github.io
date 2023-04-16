@@ -3,7 +3,7 @@
 ### Table of Contents  
 [Lưu ý](#lưu-ý)  
 1. [Khởi tạo](#1-khởi-tạo)  
-2. [Trả về List<string> rỗng](#new-2-trả-về-list-rỗng) 
+2. [Trả về List string rỗng](#new-2-trả-về-list-string-rỗng) 
 3. [Nhập trường (field) - Import()](#3-nhập-trường-field---import)
 4. [Nhập dữ liệu (data) - Import()](#4-nhập-dữ-liệu-data---import)
 5. [Lấy dữ liệu có điều kiện - GetList](#new-5-lấy-dữ-liệu-có-điều-kiện---getlist)
@@ -42,7 +42,7 @@ private DataProcessing dp = new DataProcessing();
 
 ---
   
-### [NEW] 2. Trả về List<string> rỗng
+### [NEW] 2. Trả về List string rỗng
   
 ```
 DataProcessing.emptyList

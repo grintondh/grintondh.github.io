@@ -140,6 +140,9 @@ Dữ liệu luôn phải có trường NotDelete.
 - [NEW] query hoặc columns là DataProcessing.emptyList: Không có điều kiện / Lấy toàn bộ cột.
 - query hoặc columns là List<string> {"SAME"}: Lấy điều kiện / các cột tại lần gọi trước đó. Mặc định ban đầu là null.
 - Các trường hợp khác: Lấy theo điều kiện / các cột.
+
+- [NEW] Nếu giá trị điều kiện dạng: "CONTAIN x" (x là một string) thì bộ lọc sẽ trả về các data có chứa x. Ví dụ là "CONTAIN 10", các giá trị sau đều thỏa mãn: "100", "010", "1010",...
+ 
   
 #### Trả về
 
@@ -166,7 +169,43 @@ Các hàm thêm / sửa / xóa dưới đây sau khi thực hiện chức năng 
   
 Nếu chuyển từ dữ liệu cũ sang dữ liệu mới, trừ khi gọi các hàm thêm / cập nhật / xóa ở dưới thì sẽ không lưu lại bất kỳ một thay đổi nào.
   
-### 6. Lấy số phần tử dữ liệu - GetLength()
+### [NEW] 6. Lấy phần tử lớn nhất / nhỏ nhất theo điều kiện - GetMaxMin()
+  
+#### Cú pháp
+  
+```
+<tên biến>.GetMaxMin(int _offset, int _limit, List<string> _query, string _sort, string _maxMin)
+```
+
+- offset: Lấy từ vị trí nào
+- limit: Lấy báo nhiêu vị trí
+- query: Gồm n điều kiện. List query gồm 2 * n phần tử, phần tử 2 * i (chẵn) là tên property, 2 * i + 1 (lẻ tương ứng) là giá trị điều kiện.
+- [NEW] sorts: Điều kiện sắp xếp, có dạng "<tên cột> asc/desc". Ví dụ: "id asc name desc": Sắp xếp tăng dần theo id, nếu trùng id thì giảm dần theo name.
+- maxMin: "MAX" nếu lấy phần tử cuối cùng theo sorts, "MIN" nếu lấy phần tử đầu tiên theo sorts.
+  
+#### Trả về
+  
+- DataRow chứa dữ liệu tương ứng.
+  
+- null nếu maxMin không phải "MAX" hoặc "MIN".
+  
+#### Lưu ý
+  
+- Hàm này chẳng qua là rút gọn cho cái này thôi:
+  
+```
+  DataTable _sortedDB = GetList(_offset, _limit, _query, _sort);
+
+            if (_maxMin == "MAX")
+                return _sortedDB.Rows[_sortedDB.Rows.Count - 1];
+            else if (_maxMin == "MIN")
+                return _sortedDB.Rows[0];
+            else
+                return null;
+```
+
+  
+### 7. Lấy số phần tử dữ liệu - GetLength()
   
 #### Cú pháp
   
@@ -178,7 +217,7 @@ Nếu chuyển từ dữ liệu cũ sang dữ liệu mới, trừ khi gọi các
 
 Số nguyên chứa số lượng phần tử dữ liệu
   
-### 7. Lấy Offset và Limit gần nhất - GetOffsetLimitNow()
+### 8. Lấy Offset và Limit gần nhất - GetOffsetLimitNow()
  
 #### Cú pháp
 
@@ -190,7 +229,7 @@ Số nguyên chứa số lượng phần tử dữ liệu
   
 Một Tuple<int,int> (giống pair<int,int>). Trong đó .Item1 là Offset, .Item2 là Limit.
   
-### 8. Thêm phần tử mới - AddNewElement()
+### 9. Thêm phần tử mới - AddNewElement()
   
 #### Cú pháp
   
@@ -210,7 +249,7 @@ Hệ thống sẽ hiện Dialog thông báo kể cả thành công hay thất b�
  
 Để có được JObject element, ta dùng lệnh ```JObject.FromObject(data)```, với data ở class dạng tùy chỉnh.
   
-### 9. Xóa toàn bộ phần tử
+### 10. Xóa toàn bộ phần tử
   
 #### Cú pháp
   
@@ -230,7 +269,7 @@ Một DataTable rỗng (sau khi Clear toàn bộ phần tử đã lưu).
 <tên biến>.UpdateElementsInRange(DataTable dataTable)
 ```
 
-### 10. Xóa một phần tử trong danh sách - DeleteElementInRange()
+### 11. Xóa một phần tử trong danh sách - DeleteElementInRange()
   
 #### Cú pháp
 
@@ -248,7 +287,7 @@ Một DataTable rỗng (sau khi Clear toàn bộ phần tử đã lưu).
 
 - Hệ thống sẽ báo lỗi khi dataTable = null hoặc indexInTable >= Limit. Do đó cần luôn có giá trị mặc định tại đây.
   
-- Nếu NotDelete = true thì hệ thống hiện dialog báo vượt quyền.
+- [NEW] Nếu tồn tại property NotDelete thì nếu NotDelete = true thì hệ thống hiện dialog báo vượt quyền.
   
 - [NEW] Không có thông báo nếu thành công.
   
@@ -256,11 +295,11 @@ Một DataTable rỗng (sau khi Clear toàn bộ phần tử đã lưu).
   
 - Hàm chỉ cập nhật các phần tử đã được gọi trước đó bởi hàm GetList()
   
-- Một phần tử chỉ bị xóa nếu thỏa mãn: NotDelete = false và Delete = true. Nếu không xóa thì sẽ cập nhật lại với giá trị mới nhất trong dataTable.
+- [NEW] Một phần tử chỉ bị xóa nếu thỏa mãn: Delete = true và (nếu tồn tại property này) NotDelete = false. Nếu không xóa thì sẽ cập nhật lại với giá trị mới nhất trong dataTable.
 
 - [NEW] ĐỂ XÓA MỘT PHẦN TỬ, KHÔNG ĐƯỢC XÓA PHẦN TỬ TRONG DATATABLE ĐƯỢC TRẢ VỀ, BẮT BUỘC PHẢI SET DELETE = TRUE (KHÔNG SỬA NOTDELETE ĐỂ TRÁNH BỊ XÓA NHẦM).
   
-### 11. Sửa một phần tử trong danh sách - ChangeElementInRange()
+### 12. Sửa một phần tử trong danh sách - ChangeElementInRange()
   
 #### Cú pháp
 
@@ -284,7 +323,7 @@ Một DataTable rỗng (sau khi Clear toàn bộ phần tử đã lưu).
   
 - [NEW] Hàm chỉ cập nhật các phần tử đã được gọi trước đó bởi hàm GetList()
   
-### 12. Xuất dữ liệu - Export()
+### 13. Xuất dữ liệu - Export()
   
 #### Cú pháp
   
@@ -312,7 +351,7 @@ JsonProcessing.ExportJsonContentInDefaultFolder("data.json", data.Export());
   
 - Sau khi Export hãy Import lại dữ liệu mới rồi GetList để đảm bảo dữ liệu hiển thị là mới nhất.
   
-### [NEW] 13. Copy data sang một biến mới - CopyData()
+### [NEW] 14. Copy data sang một biến mới - CopyData()
   
 #### Cú pháp
   

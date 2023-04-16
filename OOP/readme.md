@@ -134,7 +134,7 @@ Dữ liệu luôn phải có trường NotDelete.
 - limit: Lấy báo nhiêu vị trí
 - query: Gồm n điều kiện. List query gồm 2 * n phần tử, phần tử 2 * i (chẵn) là tên property, 2 * i + 1 (lẻ tương ứng) là giá trị điều kiện.
 - columns: Tên các cột cần lấy.
-- [NEW] sorts: Điều kiện sắp xếp, có dạng "<tên cột> asc/desc". Ví dụ: "id asc name desc": Sắp xếp tăng dần theo id, nếu trùng id thì giảm dần theo name.
+- [NEW] sorts: Điều kiện sắp xếp, có dạng "<tên cột> asc/desc", cách nhau bởi dấu phẩy. Ví dụ: "id asc, name desc": Sắp xếp tăng dần theo id, nếu trùng id thì giảm dần theo name.
 
 #### [NEW] Các trường hợp:
 - [NEW] query hoặc columns là DataProcessing.emptyList: Không có điều kiện / Lấy toàn bộ cột.
@@ -159,7 +159,7 @@ Dữ liệu luôn phải có trường NotDelete.
 ```
   List<string> query = new List<string> { "Name", "CONTAIN Lý"};
   List<string> column = new List<string> { "Id", "Name", "SubArray" };
-  string sorts = "Name asc Id desc";
+  string sorts = "Name asc, Id desc";
   
   DataTable dt = categoriesData.GetList(0, 10, query, column, sorts);
   /*

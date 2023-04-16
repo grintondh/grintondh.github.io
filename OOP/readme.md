@@ -154,6 +154,21 @@ Dữ liệu luôn phải có trường NotDelete.
   
 - [NEW] Nếu không tồn tại cột trong columns thì sẽ báo lỗi.
   
+#### Ví dụ
+  
+```
+  List<string> query = new List<string> { "Name", "CONTAIN Lý"};
+  List<string> column = new List<string> { "Id", "Name", "SubArray" };
+  string sorts = "Name asc Id desc";
+  
+  DataTable dt = categoriesData.GetList(0, 10, query, column, sorts);
+  /*
+     => Bắt đầu từ 0, xuất ra tối đa 10 dữ liệu. Trong đó trường Name chứa xâu "Lý" (VD: "Lý dễ", "Lý vừa",...). 
+     Dữ liệu trả về là 1 DataTable có các trường Id, Name, SubArray 
+     và sắp xếp tăng dần theo tên, nếu cùng tên xếp giảm dần theo Id.
+  */
+```
+  
 #### Lưu ý: Hiệu chỉnh Offset - Limit
   
 Hệ thống tự động hiệu chỉnh Offset, Limit nếu không phù hợp:

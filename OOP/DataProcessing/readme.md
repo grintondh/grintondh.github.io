@@ -3,33 +3,38 @@
 ### Table of Contents  
 [Lưu ý](#lưu-ý)  
 1. [Khởi tạo](#1-khởi-tạo)  
-2. [Trả về List string rỗng](#new-2-trả-về-list-string-rỗng) 
-3. [Nhập trường (field) - Import()](#3-nhập-trường-field---import)
-4. [Nhập dữ liệu (data) - Import()](#4-nhập-dữ-liệu-data---import)
-5. [Lấy dữ liệu có điều kiện - GetList](#new-5-lấy-dữ-liệu-có-điều-kiện---getlist)
-6. [Lấy phần tử lớn nhất / nhỏ nhất theo điều kiện - GetMaxMin()](#new-6-lấy-phần-tử-lớn-nhất--nhỏ-nhất-theo-điều-kiện---getmaxmin)
-7. [Lấy số phần tử dữ liệu - GetLength()](#7-lấy-số-phần-tử-dữ-liệu---getlength)
-8. [Lấy Offset và Limit gần nhất - GetOffsetLimitNow()](#8-lấy-offset-và-limit-gần-nhất---getoffsetlimitnow)
-9. [Thêm phần tử mới - AddNewElement()](#9-thêm-phần-tử-mới---addnewelement)
-10. [Xóa toàn bộ phần tử - DeleteAllElements()](#10-xóa-toàn-bộ-phần-tử---deleteallelements)
-11. [Xóa một phần tử trong danh sách - DeleteElementInRange()](#11-xóa-một-phần-tử-trong-danh-sách---deleteelementinrange)
-12. [Sửa một phần tử trong danh sách - ChangeElementInRange()](#12-sửa-một-phần-tử-trong-danh-sách---changeelementinrange)
+2. [Trả về List string rỗng](#updated-2-trả-về-list-string-rỗng) 
+3. [StatusCode](#updated-3-statuscode)
+4. [Nhập dữ liệu (cột - columns) - Import()](#updated-4-nhập-dữ-liệu-cột---columns---import)
+5. [Nhập dữ liệu (dòng - rows) - Import()](#updated-5-nhập-dữ-liệu-hàng---rows---import)
+6. [Lấy dữ liệu có điều kiện - Get()](#update-6-lấy-dữ-liệu-có-điều-kiện---get)
+7. [Lấy phần tử đầu tiên trả về theo điều kiện - GetFirstRow()](#new-7-lấy-phần-tử-đầu-tiên-trả-về-theo-điều-kiện---getfirstrow)
+8. [Lấy số phần tử dữ liệu - Length()](#8-lấy-số-phần-tử-dữ-liệu---length)
+9. [Xóa toàn bộ phần tử - DeleteAll()](#update-9-thêm-phần-tử-mới---insert)
+10. [Xóa (các) phần tử thỏa mãn điều kiện - Delete()](#update-10-xóa-toàn-bộ-phần-tử---deleteall)
+11. [Xóa một phần tử trong danh sách - DeleteElementInRange()](#update-11-xóa-các-phần-tử-thỏa-mãn-điều-kiện---delete)
+12. [Cập nhật (các) phần tử thỏa mãn điều kiện - Update()](#update-12-cập-nhật-các-phần-tử-thỏa-mãn-điều-kiện---update)
 13. [Chuyển từ DataRow sang JObject - ConvertDataRowToJObject()](#13-chuyển-từ-datarow-sang-jobject---convertdatarowtojobject)
-14. [Copy data sang một biến mới - CopyData()](#new-14-copy-data-sang-một-biến-mới---copydata)
+14. [Xuất dữ liệu - Export()](#14-xuất-dữ-liệu---export)
+15. [Quay lại bản dữ liệu trước đó - Undo()](#update-15-quay-lại-bản-dữ-liệu-trước-đó---undo)
+
+
+
 ---
-  
+
+
+
 ### Lưu ý
 
 KHÔNG XÓA / THÊM BẤT KỲ DỮ LIỆU GÌ ĐỐI VỚI DATATABLE ĐƯỢC TRẢ VỀ. VIỆC THÊM / BỚT SỬA ĐỀU PHẢI THỰC HIỆN QUA CÁC HÀM DƯỚI ĐÂY:
 
 ```
-AddNewElement()
-DeleteElementInRange()
-UpdateElementsInRange() (Hàm bao gồm xóa và sửa)
+Insert();
+DeleteAll();
+Delete();
+Update();
 ```
 
-ĐỐI VỚI VIỆC SỬA (SỬ DỤNG HÀM ```UpdateElementsInRange()``` HOẶC ```ChangeElementInRange()```), NGHIÊM CẤM THAY ĐỔI THỨ TỰ CÁC DỮ LIỆU (DÒNG).
-  
 ---
 
 ### 1. Khởi tạo
@@ -37,43 +42,74 @@ UpdateElementsInRange() (Hàm bao gồm xóa và sửa)
 Tạo một biến với class DataProcessing. Ví dụ:
 
 ```
-private DataProcessing dp = new DataProcessing();
+private DataProcessing dp = new();
 ```
 
 ---
   
-### [NEW] 2. Trả về List string rỗng
+### [UPDATED] 2. Trả về List string rỗng
   
 ```
-DataProcessing.emptyList
+DataProcessing.EmptyList
 ```
   
 ---
+
+### [UPDATED] 3. StatusCode
+
+```
+DataProcessing.StatusCode.OK (= 1)
+DataProcessing.StatusCode.Error (= 2)
+DataProcessing.StatusCode.Unset (= 0)
+```
+
+- Chứa kết quả trả về của một số hàm ở dưới.
+- Thông thường, nếu kết quả trả về là DataProcessing.StatusCode.OK tức hàm chạy thành công, DataProcessing.StatusCode.Error tức hàm chạy lỗi. Sử dụng kết quả này để "ném" Exception tránh gây lỗi dữ liệu.
+
+#### Ví dụ
+
+```
+Categories _newCategory = new()
+{
+    ... // Khởi tạo biến _newCategory
+};
+
+// Nếu Insert (thêm phần tử) bị lỗi thì "ném" Exception
+if (categoriesData.Insert(JObject.FromObject(_newCategory)) == DataProcessing.StatusCode.Error)
+    throw new Exception();
+```
   
-### 3. Nhập trường (field) - Import()
+---
+
+### [UPDATED] 4. Nhập dữ liệu (cột - columns) - Import()
 
 #### Cú pháp
 
 ```
-<tên biến>.Import(List<string> columns, List<Type> columnsType)
+<tên biến>.Import(List<string> columns, List<Type> columnsType, List<string> columnsKey)
 ```
   
 - columns: Tên các trường (còn gọi là columns - cột)
 - columnsType: Tên các loại dữ liệu tương ứng. Chú ý đặt trong typeof(...). Ví dụ: typeof(string), typeof(int), typeof(bool), typeof(List<...>),...
+- [UPDATE] columnsKey: Khóa hằng số, nhận giá trị: "PRIMARY KEY" (UNIQUE + NOT NULL) - khóa chính, "UNIQUE" - các giá trị phải khác nhau, "NOT NULL" - các giá trị phải khác null
 
-#### Trả về
+#### [UPDATE] Trả về
 
-Không. Nếu gặp lỗi hệ thống sẽ hiện dialog báo lỗi.
+Một số nguyên. Trong đó
+
+- Nếu columnsKey không chứa "PRIMARY KEY" nào cả, hệ thống sẽ báo lỗi và trả về StatusCode.Error
+- Nếu 3 List không có số phần tử bằng nhau, hệ thống sẽ báo lỗi và trả về StatusCode.Error
+- Còn lại thì hệ thống trả về StatusCode.OK
   
-Dữ liệu luôn phải có trường NotDelete.
+~~Dữ liệu luôn phải có trường NotDelete.~~
   
-#### Lưu ý
-  
-Hệ thống sẽ tự động thêm trường Delete vào dữ liệu với giá trị mặc định là false.
+#### [UPDATE] Lưu ý
+
+~~Hệ thống sẽ tự động thêm trường Delete vào dữ liệu với giá trị mặc định là false.~~
   
 ---
 
-### 4. Nhập dữ liệu (data) - Import()
+### [UPDATED] 5. Nhập dữ liệu (hàng - rows) - Import()
   
 #### Cú pháp
 
@@ -81,59 +117,76 @@ Hệ thống sẽ tự động thêm trường Delete vào dữ liệu với gi�
 <tên biến>.Import(JArray jsonDataList)
 ```
 
-- jsonDataList: Danh sách dữ liệu dưới dạng JArray.
+- jsonDataList: Danh sách dữ liệu đã xuất ra từ file Json (thông qua hàm bên JsonProcessing.cs)
   
-#### Trả về
+#### [UPDATE] Trả về
 
-  Không. Nếu gặp lỗi hệ thống sẽ hiện dialog báo lỗi.
+Một số nguyên. Trong đó
+
+- Nếu danh sách đầu vào (jsonDataList) rỗng (null), hệ thống sẽ báo lỗi và trả về StatusCode.Error
+- Nếu gặp exception trong quá trình chuyển dữ liệu, hệ thống sẽ báo lỗi (có kèm thông tin exception) và trả về StatusCode.Error
+- Còn lại thì hệ thống trả về StatusCode.OK
   
-#### Lưu ý
+#### [UPDATE] Lưu ý
   
 JArray là kết quả từ hàm ```ImportJsonContentInDefaultFolder()``` của JsonProcessing.
   
-Dữ liệu luôn phải có trường NotDelete.
+~~Dữ liệu luôn phải có trường NotDelete.~~
+
+#### Ví dụ
+
+```
+private readonly DataProcessing categoriesData = new();
+private readonly List<string> showColumns = new() { "Id", "Name", "SubArray", "QuestionArray", "Description", "IdNumber" };
+private readonly List<Type> showType = new() { typeof(int), typeof(string), typeof(JArray), typeof(JArray), typeof(string), typeof(string) };
+private readonly List<string> showKey = new() { "PRIMARY KEY", "UNIQUE", "", "", "", "UNIQUE"};
+private DataTable? categoriesDataTable = new();
+        
+categoriesData.Import(showColumns, showType, showKey);
+categoriesData.Import(_categoriesData);
+categoriesDataTable = categoriesData.Offset(0).Limit(50).Get();
+```
   
 ---
   
-### [NEW] 5. Lấy dữ liệu có điều kiện - GetList
+### [UPDATE] 6. Lấy dữ liệu có điều kiện - Get()
   
-#### Cú pháp
+#### Cú pháp đầy đủ
   
 ```
-<tên biến>.GetList(int _offset, int _limit, List<string> _query, List<string> _columns, string _sorts)
-
-<tên biến>.GetList(int _offset, int _limit)
-
-<tên biến>.GetList(int _offset, int _limit, string _sort)
-
-<tên biến>.GetList(int _offset, int _limit, List<string> _query, string _sort)
-
-<tên biến>.GetList(int _offset, int _limit, List<string> _query, List<string> _columns)
+<tên biến>.Init()           //            
+          .Offset(offset)   // int        
+          .Limit(limit)     // int        
+          .Query(query)     // List<string>
+          .Select(columns)  // List<string>
+          .Sort(sorts)      // string      
+          .Get()            //             
 ```
-  
-- offset: Lấy từ vị trí nào
-- limit: Lấy báo nhiêu vị trí
-- query: Gồm n điều kiện. List query gồm 2 * n phần tử, phần tử 2 * i (chẵn) là tên property, 2 * i + 1 (lẻ tương ứng) là giá trị điều kiện.
-- columns: Tên các cột cần lấy.
-- [NEW] sorts: Điều kiện sắp xếp, có dạng "<tên cột> asc/desc", cách nhau bởi dấu phẩy. Ví dụ: "id asc, name desc": Sắp xếp tăng dần theo id, nếu trùng id thì giảm dần theo name.
 
-#### [NEW] Các trường hợp:
-- [NEW] query hoặc columns là DataProcessing.emptyList: Không có điều kiện / Lấy toàn bộ cột.
-- query hoặc columns là List<string> {"SAME"}: Lấy điều kiện / các cột tại lần gọi trước đó. Mặc định ban đầu là null.
-- Các trường hợp khác: Lấy theo điều kiện / các cột.
+| Tên hàm | Cách gọi hàm | Bắt buộc (?) | Giá trị tham số | Giá trị mặc định (nếu không gọi) | Kiểu biến tham số | Ví dụ gọi hàm |
+| -- | -- | -- | -- | -- | -- | -- |
+| Khởi tạo tham số | Init() | Bắt buộc |  |  |  | ```.Init()``` |
+| Offset | Offset(offset) | Không bắt buộc | Lấy từ vị trí nào | 0 | int | ```.Offset(20)``` |
+| Limit | Limit(limit) | Không bắt buộc | Lấy báo nhiêu vị trí | DEFAULT_LIMIT (= 25) | int | ```.Limit(10)`` |
+| Truy vấn | Query(query) | Không bắt buộc | Gồm n điều kiện. List query gồm 2 * n phần tử, phần tử 2 * i (chẵn) là tên property, 2 * i + 1 (lẻ tương ứng) là giá trị điều kiện. Đọc về "CONTAIN" ở phía dưới | EmptyList (không có điều kiện) | List<string> | ```List<string> query = new() { "Id", "CONTAIN 30" }; .Query(query)``` |
+| Cột | Select(columns) | Không bắt buộc | Tên các cột cần lấy | EmptyList (lấy toàn bộ cột) | List<string> | ```List<string> select = new() { "Name", "Password" }; .Select(select)``` |
+| Sắp xếp | Sort(sorts) | Không bắt buộc | Điều kiện sắp xếp, có dạng "<tên cột> asc/desc", cách nhau bởi dấu phẩy. Ví dụ: "id asc, name desc": Sắp xếp tăng dần theo id, nếu trùng id thì giảm dần theo name. | null (không có truy vấn sắp xếp) | string | ```DataRow? _maxIdRow = categoriesData.Offset(0).Limit(15).Sort("Id desc, Name asc").Get()``` |
 
-- [NEW] Nếu giá trị điều kiện dạng: "CONTAIN x" (x là một string) thì bộ lọc sẽ trả về các data có chứa x. Ví dụ là "CONTAIN 10", các giá trị sau đều thỏa mãn: "100", "010", "1010",...
- 
-  
-#### Trả về
+#### [UPDATE] Lưu ý
+- Nếu không gọi các hàm Offset, Limit, Query, Select, Sort thì giá trị tương ứng của chúng là giá trị mặc định (bảng trên).
+- Nếu giá trị điều kiện (query) dạng: "CONTAIN x" (x là một string) thì bộ lọc sẽ trả về các data có chứa x. Ví dụ là "CONTAIN 10", các giá trị sau đều thỏa mãn: "100", "0 10", "1010",...
+- Một giá trị thỏa mãn điều kiện nếu .ToString().ToLower() của chúng đều bằng nhau. (Nếu gặp lỗi phần này cần báo ngay).
 
-- [NEW] DataTable chứa dữ liệu lấy ra. Nếu lấy lỗi hệ thống sẽ hiện hộp thoại báo lỗi. Bấm OK để thoát chương trình, Cancel để quay lại.
-
-- Nếu query có lẻ phần tử thì sẽ báo lỗi.
   
-- [NEW] Nếu columns không chứa hai cột "NotDelete" hoặc "delete" thì sẽ báo lỗi.
+#### [UPDATE] Trả về
+- Nếu query hoặc columns là null thì hệ thống báo lỗi và trả về null.
+- Nếu query có lẻ các phần tử thì hệ thống báo lỗi và trả về null.
+- Nếu gặp lỗi trong khi duyệt dữ liệu thì hệ thống báo lỗi và trả về null.
+- Nếu columns chứa cột không được Import ban đầu thì hệ thống báo lỗi và trả về null.
+- Nếu gặp exception trong quá trình chuyển dữ liệu, hệ thống sẽ báo lỗi (có kèm thông tin exception) và trả về null.
+- Các trường hợp còn lại trả về DataTable chứa dữ liệu cần lấy.
   
-- [NEW] Nếu không tồn tại cột trong columns thì sẽ báo lỗi.
+- Nếu không có cột nào trong columns có khóa hằng là PRIMARY KEY hoặc UNIQUE thì sẽ hiện thông báo cảnh báo.
   
 #### Ví dụ
   
@@ -142,7 +195,7 @@ Dữ liệu luôn phải có trường NotDelete.
   List<string> column = new List<string> { "Id", "Name", "SubArray" };
   string sorts = "Name asc, Id desc";
   
-  DataTable dt = categoriesData.GetList(0, 10, query, column, sorts);
+  DataTable dt = categoriesData.Init().Offset(0).Limit(10).Query(query).Select(column).Get();
   /*
      => Bắt đầu từ 0, xuất ra tối đa 10 dữ liệu. Trong đó trường Name chứa xâu "Lý" (VD: "Lý dễ", "Lý vừa",...). 
      Dữ liệu trả về là 1 DataTable có các trường Id, Name, SubArray 
@@ -160,56 +213,38 @@ Offset = Math.Min(Math.Max(0, Offset), length - Limit);
 ```
   
 với length là số phần tử dữ liệu (rows - hàng).
-  
-Các hàm thêm / sửa / xóa dưới đây sau khi thực hiện chức năng chính thì đều sẽ gọi hàm này để lấy dữ liệu. Do đó, Limit và Offset sẽ bị điều chỉnh dựa trên bảng mới.
-  
-Nếu chuyển từ dữ liệu cũ sang dữ liệu mới, trừ khi gọi các hàm thêm / cập nhật / xóa ở dưới thì sẽ không lưu lại bất kỳ một thay đổi nào.
-  
+    
 ---
   
-### [NEW] 6. Lấy phần tử lớn nhất / nhỏ nhất theo điều kiện - GetMaxMin()
+### [NEW] 7. Lấy phần tử đầu tiên trả về theo điều kiện - GetFirstRow()
   
-#### Cú pháp
+#### Cú pháp đầy đủ
   
 ```
-<tên biến>.GetMaxMin(int _offset, int _limit, List<string> _query, string _sort, string _maxMin)
+<tên biến>.Init()           //            
+          .Offset(offset)   // int        
+          .Limit(limit)     // int        
+          .Query(query)     // List<string>
+          .Select(columns)  // List<string>
+          .Sort(sorts)      // string      
+          .GetFirstRow()    //         
 ```
 
-- offset: Lấy từ vị trí nào
-- limit: Lấy báo nhiêu vị trí
-- query: Gồm n điều kiện. List query gồm 2 * n phần tử, phần tử 2 * i (chẵn) là tên property, 2 * i + 1 (lẻ tương ứng) là giá trị điều kiện.
-- [NEW] sorts: Điều kiện sắp xếp, có dạng "<tên cột> asc/desc". Ví dụ: "id asc name desc": Sắp xếp tăng dần theo id, nếu trùng id thì giảm dần theo name.
-- maxMin: "MAX" nếu lấy phần tử cuối cùng theo sorts, "MIN" nếu lấy phần tử đầu tiên theo sorts.
+- Về các thành phần tương tự như Get()
   
 #### Trả về
   
-- DataRow chứa dữ liệu tương ứng.
-  
-- null nếu maxMin không phải "MAX" hoặc "MIN".
-  
-#### Lưu ý
-  
-- Hàm này chẳng qua là rút gọn cho cái này thôi:
-  
-```
-  DataTable _sortedDB = GetList(_offset, _limit, _query, _sort);
-
-            if (_maxMin == "MAX")
-                return _sortedDB.Rows[_sortedDB.Rows.Count - 1];
-            else if (_maxMin == "MIN")
-                return _sortedDB.Rows[0];
-            else
-                return null;
-```
+- Các điều kiện thông báo lỗi như phần 6.
+- Ở trường hợp còn lại, trả về một DataRow chứa dữ liệu của hàng đầu tiên theo danh sách.
 
 ---
   
-### 7. Lấy số phần tử dữ liệu - GetLength()
+### 8. Lấy số phần tử dữ liệu - Length()
   
 #### Cú pháp
   
 ```
-<tên biến>.GetLength()
+<tên biến>.Length()
 ```
   
 #### Trả về
@@ -217,36 +252,26 @@ Nếu chuyển từ dữ liệu cũ sang dữ liệu mới, trừ khi gọi các
 Số nguyên chứa số lượng phần tử dữ liệu
   
 ---
-  
-### 8. Lấy Offset và Limit gần nhất - GetOffsetLimitNow()
- 
-#### Cú pháp
-
-```
-<tên biến>.GetOffsetLimitNow()
-```
-
-#### Trả về
-  
-Một Tuple<int,int> (giống pair<int,int>). Trong đó .Item1 là Offset, .Item2 là Limit.
-
----
-  
-### 9. Thêm phần tử mới - AddNewElement()
+    
+### [UPDATE] 9. Thêm phần tử mới - Insert()
   
 #### Cú pháp
   
 ```
-<tên biến>.AddNewElement(JObject element)
+<tên biến>.Insert(JObject element)
 ```
   
 - element: Chứa phần tử thêm vào
   
-#### Trả về
+#### [UPDATE] Trả về
   
-DataTable có chứa phần tử mới, với Limit giữ nguyên như lần gọi kế trước, Offset sẽ về tối đa.
+Một số nguyên. Trong đó:
   
-Hệ thống sẽ hiện Dialog thông báo kể cả thành công hay thất bại.
+- Nếu element rỗng thì hệ thống báo lỗi và trả về StatusCode.Error
+- Nếu tồn tại một cột PRIMARY KEY / NOT NULL mà trong element chứa giá trị null thì hệ thống báo lỗi và trả về StatusCode.Error
+- Nếu tồn tại một cột PRIMARY KEY / UNIQUE mà trong element chứa giá trị trùng với các giá trị khác trong bảng thì hệ thống báo lỗi và trả về StatusCode.Error
+- Nếu gặp exception trong quá trình chuyển dữ liệu, hệ thống sẽ báo lỗi (có kèm thông tin exception) và trả về StatusCode.Error
+- Trong các trường hợp khác, hệ thống báo thành công và trả về StatusCode.OK
   
 #### Lưu ý
  
@@ -254,73 +279,94 @@ Hệ thống sẽ hiện Dialog thông báo kể cả thành công hay thất b�
   
 ---
   
-### 10. Xóa toàn bộ phần tử - DeleteAllElements()
+### [UPDATE] 10. Xóa toàn bộ phần tử - DeleteAll()
   
 #### Cú pháp
   
 ```
-<tên biến>.DeleteAllElements()
+<tên biến>.DeleteAll()
 ```
+
+- Có tác dụng clear ListElement.
   
 #### Trả về
 
-Một DataTable rỗng (sau khi Clear toàn bộ phần tử đã lưu).
-  
-### 11. Xóa một phần tử trong danh sách - DeleteElementInRange()
-  
-#### Cú pháp
-
-```
-<tên biến>.DeleteElementInRange(DataTable dataTable, int indexInTable)
-```
-  
-- dataTable: DataTable đang quản lý dữ liệu show ra.
-  
-- indexInTable: Thứ tự (index) của phần tử trong bảng dataTable.
-  
-#### Trả về
-
-- [NEW] Không có
-
-- Hệ thống sẽ báo lỗi khi dataTable = null hoặc indexInTable >= Limit. Do đó cần luôn có giá trị mặc định tại đây.
-  
-- [NEW] Nếu tồn tại property NotDelete thì nếu NotDelete = true thì hệ thống hiện dialog báo vượt quyền.
-  
-- [NEW] Không có thông báo nếu thành công.
-  
-#### Lưu ý
-  
-- Hàm chỉ cập nhật các phần tử đã được gọi trước đó bởi hàm GetList()
-  
-- [NEW] Một phần tử chỉ bị xóa nếu thỏa mãn: Delete = true và (nếu tồn tại property này) NotDelete = false. Nếu không xóa thì sẽ cập nhật lại với giá trị mới nhất trong dataTable.
-
-- [NEW] ĐỂ XÓA MỘT PHẦN TỬ, KHÔNG ĐƯỢC XÓA PHẦN TỬ TRONG DATATABLE ĐƯỢC TRẢ VỀ, BẮT BUỘC PHẢI SET DELETE = TRUE (KHÔNG SỬA NOTDELETE ĐỂ TRÁNH BỊ XÓA NHẦM).
+- Không có.
   
 ---
   
-### 12. Sửa một phần tử trong danh sách - ChangeElementInRange()
+### [UPDATE] 11. Xóa (các) phần tử thỏa mãn điều kiện - Delete()
   
 #### Cú pháp
 
 ```
-<tên biến>.ChangeElementInRange(DataTable dataTable, int indexInTable)
+<tên biến>.Init()           //            
+          .Offset(offset)   // int        
+          .Limit(limit)     // int        
+          .Query(query)     // List<string>
+          .Select(columns)  // List<string>
+          .Sort(sorts)      // string      
+          .Delete()         //   
 ```
   
-- dataTable: DataTable đang quản lý dữ liệu show ra.
-  
-- indexInTable: Thứ tự (index) của phần tử trong bảng _dataTable tính từ 0 đến Limit - 1 (= Offset đến Offset + Limit - 1trong bảng đầy đủ).
-  
-#### Trả về
-  
-- [NEW] Không có.
-  
-- Hệ thống sẽ báo lỗi khi dataTable = null hoặc indexInTable >= Limit. Do đó cần luôn có giá trị mặc định tại đây.
+- Các thông tin về Init, Offset, Limit, Query, Select, Sort xem trong phần 6 (Get())
 
-- [NEW] Không có thông báo nếu thành công.
+#### Trả về
+Một số nguyên. Trong đó: 
+  
+- Các lỗi liên quan đến hàm Init, Offset, Limit, Query, Select, Sort xem trong phần 6 (Get()). Khi đó hệ thống trả về StatusCode.Error (không báo lỗi)
+- Nếu gặp exception trong quá trình chuyển dữ liệu, hệ thống sẽ báo lỗi (có kèm thông tin exception), hủy bỏ quá trình xóa (thực hiện hàm Undo) và trả về StatusCode.Error
+- Các trường hợp còn lại hệ thống sẽ báo thành công và trả về StatusCode.Success
+  
+---
+  
+### [UPDATE] 12. Cập nhật (các) phần tử thỏa mãn điều kiện - Update()
+  
+#### Cú pháp
+
+```
+<tên biến>.Init()             //            
+          .Offset(offset)     // int        
+          .Limit(limit)       // int        
+          .Query(query)       // List<string>
+          .Select(columns)    // List<string>
+          .Sort(sorts)        // string      
+          .Update(newValue)   // JObject  
+```
+  
+- Các thông tin về Init, Offset, Limit, Query, Select, Sort xem trong phần 6 (Get())
+- newValue: Giá trị mới cập nhật
+
+#### Trả về
+Một số nguyên. Trong đó: 
+  
+- Các lỗi liên quan đến hàm Init, Offset, Limit, Query, Select, Sort xem trong phần 6 (Get()). Khi đó hệ thống trả về StatusCode.Error (không báo lỗi)
+- Nếu newValue là giá trị rỗng thì hệ thống báo lỗi và trả về StatusCode.Error
+- Nếu tồn tại một cột PRIMARY KEY / NOT NULL mà trong element chứa giá trị null thì hệ thống báo lỗi và trả về StatusCode.Error
+- Nếu tồn tại một cột PRIMARY KEY / UNIQUE mà trong element chứa giá trị trùng với các giá trị khác trong bảng thì hệ thống báo lỗi và trả về StatusCode.Error
+- Nếu gặp exception trong quá trình chuyển dữ liệu, hệ thống sẽ báo lỗi (có kèm thông tin exception), hủy bỏ quá trình xóa (thực hiện hàm Undo) và trả về StatusCode.Error
+- Các trường hợp còn lại hệ thống sẽ báo thành công và trả về StatusCode.Success
   
 #### Lưu ý
   
-- [NEW] Hàm chỉ cập nhật các phần tử đã được gọi trước đó bởi hàm GetList()
+- Để có được newValue là JObject có thể dùng hàm JObject.FromObject(...)
+  
+#### Ví dụ
+
+```
+Categories _newCategory = new()
+{
+    Id = (_maxIdRow == null) ? 0 : (_maxIdRow.Field<int>("Id") + 1),
+    Name = _name,
+    SubArray = new List<int>(),
+    QuestionArray = new List<int>(),
+    Description = _description,
+    IdNumber = _id
+};
+
+if (categoriesData.Insert(JObject.FromObject(_newCategory)) == DataProcessing.StatusCode.Error)
+    throw new Exception();
+```
   
 ---
   
@@ -335,6 +381,8 @@ Một DataTable rỗng (sau khi Clear toàn bộ phần tử đã lưu).
 #### Trả về
   
 - JObject chuyển từ DataRow trên.
+  
+---
   
 ### 14. Xuất dữ liệu - Export()
   
@@ -366,12 +414,12 @@ JsonProcessing.ExportJsonContentInDefaultFolder("data.json", data.Export());
   
 ---
   
-### [NEW] 14. Copy data sang một biến mới - CopyData()
+### [UPDATE] 15. Quay lại bản dữ liệu trước đó - Undo()
   
 #### Cú pháp
   
 ```
-<biến cũ>.CopyData(<biến mới>)
+<tên biến>.Undo()
 ```
   
 #### Trả về
@@ -380,6 +428,6 @@ Không có
 
 #### Lưu ý
   
-Sử dụng để:
+- Thực chất trong class DataProcessing luôn có một biến PrevListElements lưu giá trị "backup" cho dữ liệu trước khi thực hiện các hàm Get(), GetFirstRow(), Insert(), DeleteAll(), Delete(), Update() tránh cho việc thực hiện hàm bị lỗi dữ liệu. Ví dụ: như khi thực hiện hàm Delete() với Update() bị lỗi thì sẽ tự động hủy bỏ hành động (bằng cách gọi làm Undo này).
   
-- Tránh ảnh hưởng đến Offset và Limit cũ.
+- Biến PrevListElements chỉ lưu lại bản dữ liệu lần (gần nhất, ngay trước khi thực hiện hàm).

@@ -1,59 +1,68 @@
-﻿using Accessibility;
-using Newtonsoft.Json;
+// DataProcessing.cs v3.0.0
+// Last modified: 26.4.2023 by DH
+
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text.Json.Serialization;
-using System.Windows.Forms;
 
 namespace Learning_System.ExternalClass
 {
     public class DataProcessing
     {
         private JArray ListElements { get; set; } = new JArray();
-        private List<string> ShowColumnsName { get; set; } = new List<string>();
-        private List<Type> ShowColumnsType { get; set; } = new List<Type>();
-        private int length { get; set; }
-        private int Limit { get; set; }
-        private List<string> Condition { get; set; } = new List<string>();
-        private List<string> Columns { get; set; } = new List<string>();
-        private int Offset { get; set; }
-        private List<Tuple<int, int>> SelectedRow { get; set; } = new List<Tuple<int, int>>();
-        public static List<string> emptyList { get; } = new List<string>();
-
-        private const int DEFAULT_LIMIT = 25;
         
         /// <summary>
-        /// Import data file
+        /// Lưu ListElements ngay trước đó. Cập nhật trước khi thực hiện hàm Get(), GetFirstRow(), Insert(), Update(), DeleteAll(), Delete()
         /// </summary>
-        /// <param name="_jsonDataList">Data which is parsed in JArray.</param>
-        /// <param name="_columns">List of columns' name you want to show</param>
-        /// <param name="_columnsType">List of columns' type you want to show</param>
-        public void Import(List<string> _columns, List<Type> _columnsType)
+        private JArray PrevListElements { get; set; } = new JArray();
+
+        private List<(string Name, Type Type, string Key)> ColumnsSetting { get; set; } = new List<(string Name, Type Type, string Key)>();
+        public static List<string> EmptyList { get; } = new List<string>();
+
+        private const int DEFAULT_LIMIT = 25;
+
+        public class StatusCode
         {
-            try
-            {
-                ShowColumnsName = _columns;
-                if (ShowColumnsName.Contains("delete") == false)
-                    ShowColumnsName.Add("delete");
-
-                ShowColumnsType = _columnsType;
-                ShowColumnsType.Add(typeof(bool));
-            }
-            catch (Exception ex)
-            {
-                DialogResult _errorDialog = MessageBox.Show("Couldn't import data\n" + ex, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
-
-                if (_errorDialog == DialogResult.Retry)
-                    Import(_columns, _columnsType);
-                    
-                return;
-            }
+            public const int OK = 1;
+            public const int Error = 2;
+            public const int Unset = 0;
         }
-        public void Import(JArray _jsonDataList)
+
+        /// <summary>
+        /// Nhập dữ liệu (cột)
+        /// </summary>
+        /// <param name="_columns">Tên các cột</param>
+        /// <param name="_columnsType">Loại dữ liệu của các cột</param>
+        /// <param name="_columnsKey">Khóa hằng số: PRIMARY KEY, NOT NULL, UNIQUE</param>
+        /// <returns>StatusCode: OK (1): Thành công; Error (2): Thất bại</returns>
+        public int Import(List<string> _columns, List<Type> _columnsType, List<string> _columnsKey)
+        {
+            if (_columnsKey.Contains("PRIMARY KEY") == false)
+            {
+                MessageBox.Show("Cần có ít nhất một cột có tính chất Primary (Unique + Not null) trong bảng!\n", "Error");
+                return StatusCode.Error;
+            }
+            
+            if (_columns.Count != _columnsType.Count || _columns.Count != _columnsKey.Count)
+            {
+                MessageBox.Show("Số lượng các trường danh sách của cột không tương thích với nhau!\n", "Error");
+                return StatusCode.Error;
+            }
+
+            for (int _i = 0; _i < _columns.Count; _i++)
+            {
+                (string Name, Type Type, string Key) _newRow = (_columns[_i], _columnsType[_i], _columnsKey[_i]);
+                ColumnsSetting.Add(_newRow);
+            }
+
+            return StatusCode.OK;
+        }
+
+        /// <summary>
+        /// Nhập dữ liệu (hàng)
+        /// </summary>
+        /// <param name="_jsonDataList">Danh sách dữ liệu đã xuất ra từ file JSON</param>
+        /// <returns>StatusCode: OK (1): Thành công; Error (2): Thất bại</returns>
+        public int Import(JArray _jsonDataList)
         {
             try
             {
@@ -61,129 +70,82 @@ namespace Learning_System.ExternalClass
                 {
                     ListElements.Clear();
 
-                    bool _defaultBoolValue = false;
-                    foreach (JObject _jsonObj in _jsonDataList)
-                    {
-                        if (_jsonObj["delete"] != null)
-                            _jsonObj["delete"] = _defaultBoolValue;
-                        else
-                            _jsonObj.Add(new JProperty("delete", _defaultBoolValue));
-
+                    foreach (JObject _jsonObj in _jsonDataList.Cast<JObject>())
                         ListElements.Add(_jsonObj);
-                    }
 
-                    length = ListElements.Count;
+                    return StatusCode.OK;
                 }
                 else
-                    throw new Exception();
-
+                {
+                    MessageBox.Show("Danh sách đầu vào rỗng!\n", "Error");
+                    return StatusCode.Error;
+                }
             }
             catch (Exception ex)
             {
-                DialogResult _errorDialog = MessageBox.Show("Couldn't import data\n" + ex, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
-
-                if (_errorDialog == DialogResult.Retry)
-                    Import(_jsonDataList);
-                    
-                return;
+                MessageBox.Show("Có lỗi trong quá trình chuyển đổi dữ liệu!\nChi tiết lỗi:\n" + ex, "Error");
+                return StatusCode.Error;
             }
         }
 
+        private List<string> queryList = new();
+        private List<string> columnsList = new();
+        private string? sortList = null;
+        private int limit = DEFAULT_LIMIT;
+        private int offset = 0;
+
         /// <summary>
-        /// Export data to DataGridView.DataSource object
+        /// Lấy danh sách thỏa mãn điều kiện. Đây là hàm private.
         /// </summary>
-        /// <param name="_offset">First index you want to get</param>
-        /// <param name="_limit">Number of elements you want to get</param>
-        /// <param name="_query">Queries List (optional)</param>
-        /// <param name="_columns">Columns List (optional)</param>
-        /// <return>Return DataTable</return>
-        public DataTable GetList(int _offset, int _limit, List<string> _query, List<string> _columns, string _sort)
+        /// <returns>null nếu thất bại, List các index thỏa mãn nếu thành công.</returns>
+        private List<int>? GetAllSatisfy()
         {
             try
             {
-                if (_query.Count % 2 != 0 && (_query.Count != 1 || _query[0] != "SAME"))
-                    throw new Exception();
-
-                int _archievedOffset = Offset, _archievedLimit = Limit;
-
-                Offset = _offset;
-                Limit = _limit;
-
-                if (_query.Count == 1 && _query[0] == "SAME")
-                    Condition = Condition;
-                else
-                    Condition = _query;
-
-                if (_columns.Count == 1 && _columns[0] == "SAME")
-                    Columns = Columns;
-                else
-                    Columns = _columns;
-
-                /// Correction offset and limit value
-                Limit = Math.Min(Math.Max(0, Limit), length);
-                Offset = Math.Min(Math.Max(0, Offset), length - Limit);
-
-                DataTable _dataTable = new DataTable();
-
-                if (Columns.Count > 0)
+                if (queryList.Count % 2 != 0)
                 {
-                    for (int _j = 0; _j < Columns.Count; _j++)
-                    {
-                        string _columnName = Columns[_j];
-                        bool _isExistColumn = false;
-
-                        for (int _k = 0; _k < ShowColumnsName.Count; _k++)
-                        {
-                            if (_columnName == ShowColumnsName[_k])
-                            {
-                                Type _columnType = ShowColumnsType[_k];
-                                _dataTable.Columns.Add(_columnName, _columnType);
-
-                                _isExistColumn = true;
-                                break;
-                            }
-                        }
-
-                        if (_isExistColumn == false)
-                            throw new Exception();
-                    }
-                }
-                else
-                {
-                    for (int _j = 0; _j < ShowColumnsName.Count; _j++)
-                    {
-                        string _columnName = ShowColumnsName[_j];
-                        Type _columnType = ShowColumnsType[_j];
-                        _dataTable.Columns.Add(_columnName, _columnType);
-                    }
+                    MessageBox.Show("Danh sách truy vấn cần có số chẵn các phần tử!", "Error");
+                    return null;
                 }
 
-                SelectedRow.Clear();
+                bool _existPrimaryKeyOrUnique = false;
+
+                foreach (var _columnObj in ColumnsSetting)
+                    if (_columnObj.Key.Contains("PRIMARY KEY") == true || _columnObj.Key.Contains("UNIQUE") == true)
+                    {
+                        _existPrimaryKeyOrUnique = true;
+                        break;
+                    }
+
+                if (_existPrimaryKeyOrUnique == false)
+                    MessageBox.Show("Nên có ít nhất một cột PRIMARY KEY hoặc UNIQUE trong danh sách cột!", "Warning!", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+
+                List<int> _choseIndex = new();
+                int length = ListElements.Count;
+
+                /// Correct offset and limit values
+                limit = Math.Min(Math.Max(0, limit), length);
+                offset = Math.Min(Math.Max(0, offset), length - limit);
 
                 int _gotCount = 0;
 
-                for (int _i = Offset; _i < length && _gotCount < Limit; _i++)
+                for (int _i = offset; _i < length && _gotCount < limit; _i++)
                 {
-                    DataRow _dataRow = _dataTable.NewRow();
-
                     bool _isSatisfy = true;
 
-                    if (Condition.Count > 0)
+                    if (queryList.Count > 0)
                     {
-                        for (int _j = 0; _j < Condition.Count; _j += 2)
+                        for (int _j = 0; _j < queryList.Count; _j += 2)
                         {
-                            if (Condition[_j] == "GetMaxOn")
-                                continue;
-
-                            var _elementObj = ListElements[_i][Condition[_j]];
+                            var _elementObj = ListElements[_i][queryList[_j]];
                             if (_elementObj == null)
                                 continue;
 
                             string x = _elementObj.ToString();
 
-                            if (Condition[_j + 1].Length > 7 && Condition[_j + 1].Substring(0, 7) == "CONTAIN")
+                            if (queryList[_j + 1].Length > 7 && queryList[_j + 1][..7] == "CONTAIN")
                             {
-                                string _compareValue = Condition[_j + 1].Substring(8, Condition[_j + 1].Length - 8);
+                                string _compareValue = queryList[_j + 1][8..];
 
                                 if (x.Contains(_compareValue) == false)
                                 {
@@ -191,7 +153,7 @@ namespace Learning_System.ExternalClass
                                     break;
                                 }
                             }
-                            else if (x != Condition[_j + 1])
+                            else if (x != queryList[_j + 1])
                             {
                                 _isSatisfy = false;
                                 break;
@@ -202,36 +164,96 @@ namespace Learning_System.ExternalClass
                     if (_isSatisfy == false)
                         continue;
 
-                    SelectedRow.Add(Tuple.Create(_i, _gotCount));
-
+                    _choseIndex.Add(_i);
                     _gotCount++;
+                }
 
-                    if (Columns.Count > 0)
+                return _choseIndex;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Không thể duyệt dữ liệu!\nChi tiết lỗi:\n" + ex, "Error");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Lấy dữ liệu (kết hợp với Offset(), Limit(), Query(), Select(), Sort());
+        /// </summary>
+        /// <returns>null nếu thất bại, DataTable nếu thành công</returns>
+        public DataTable? Get()
+        {
+            PrevListElements = ListElements;
+
+            try
+            {
+                List<int>? getIndex = GetAllSatisfy();
+
+                if (getIndex == null)    
+                    return null;
+
+                DataTable _dataTable = new();
+
+                /// Add DataTable columns
+                if (columnsList.Count > 0)
+                {
+                    for (int _j = 0; _j < columnsList.Count; _j++)
                     {
-                        for (int _j = 0; _j < Columns.Count; _j++)
+                        string _columnName = columnsList[_j];
+                        bool _isExistColumn = false;
+
+                        for (int _k = 0; _k < ColumnsSetting.Count; _k++)
                         {
-                            string _columnName = Columns[_j];
-                            _dataRow[_columnName] = ListElements[_i][_columnName];
+                            if (_columnName == ColumnsSetting[_k].Name)
+                            {
+                                _dataTable.Columns.Add(ColumnsSetting[_k].Name, ColumnsSetting[_k].Type);
+                                _isExistColumn = true;
+                                break;
+                            }
+                        }
+
+                        if (_isExistColumn == false)
+                        {
+                            MessageBox.Show("Không tồn tại cột " + _columnName + "!", "Error");
+                            return null;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int _j = 0; _j < ColumnsSetting.Count; _j++)
+                        _dataTable.Columns.Add(ColumnsSetting[_j].Name, ColumnsSetting[_j].Type);
+                }
+
+                /// Add DataTable rows
+                foreach(int _index in getIndex)
+                {
+                    DataRow _dataRow = _dataTable.NewRow();
+
+                    if (columnsList.Count > 0)
+                    {
+                        for (int _j = 0; _j < columnsList.Count; _j++)
+                        {
+                            string _columnName = columnsList[_j];
+                            _dataRow[_columnName] = ListElements[_index][_columnName];
                         }
                     }
                     else
                     {
-                        for (int _j = 0; _j < ShowColumnsName.Count; _j++)
+                        for (int _j = 0; _j < ColumnsSetting.Count; _j++)
                         {
-                            string _columnName = ShowColumnsName[_j];
-                            _dataRow[_columnName] = ListElements[_i][_columnName];
+                            string _columnName = ColumnsSetting[_j].Name;
+                            _dataRow[_columnName] = ListElements[_index][_columnName];
                         }
                     }
 
                     _dataTable.Rows.Add(_dataRow);
                 }
 
-                Limit = _gotCount;
-
-                if(_sort != null)
+                if (sortList != null)
                 {
                     DataView _dv = _dataTable.DefaultView;
-                    _dv.Sort = _sort;
+                    _dv.Sort = sortList;
                     _dataTable = _dv.ToTable();
                 }
 
@@ -239,314 +261,262 @@ namespace Learning_System.ExternalClass
             }
             catch (Exception ex)
             {
-                DialogResult _errorDialog = MessageBox.Show("Couldn't get or show data\n" + ex, "Error", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
-
-                if (_errorDialog == DialogResult.OK)
-                    Application.Exit();
+                MessageBox.Show("Không thể lấy dữ liệu!\nChi tiết lỗi:\n" + ex, "Error");
                 return null;
+            }
+            finally
+            {
+                queryList = EmptyList;
+                columnsList = EmptyList;
+                sortList = null;
+                limit = DEFAULT_LIMIT;
+                offset = 0;
             }
         }
 
-        public DataTable GetList(int _offset, int _limit)
+        /// <summary>
+        /// Chỉ số của bản ghi xét đầu tiên
+        /// </summary>
+        public DataProcessing Offset(int _offset)
         {
-            return GetList(_offset, _limit, emptyList, emptyList, null);
-        }
-
-        public DataTable GetList(int _offset, int _limit, string _sort)
-        {
-            return GetList(_offset, _limit, emptyList, emptyList, _sort);
-        }
-
-        public DataTable GetList(int _offset, int _limit, List<string> _query, string _sort)
-        {
-            return GetList(_offset, _limit, _query, emptyList, _sort);
-        }
-
-        public DataTable GetList(int _offset, int _limit, List<string> _query, List<string> _columns)
-        {
-            return GetList(_offset, _limit, _query, _columns, null);
+            offset = _offset;
+            return this;
         }
 
         /// <summary>
-        /// Return max / min datarow satisfy conditions
+        /// Số lượng tối đa bản ghi trả về
         /// </summary>
-        /// <param name="_offset">Offset</param>
-        /// <param name="_limit">Limit</param>
-        /// <param name="_query">Conditions list</param>
-        /// <param name="_sort">Sort conditions</param>
-        /// <param name="_maxMin">MAX / MIN</param>
-        /// <returns>A datarow</returns>
-        public DataRow GetMaxMin(int _offset, int _limit, List<string> _query, string _sort, string _maxMin)
+        public DataProcessing Limit(int _limit)
         {
-            DataTable _sortedDB = GetList(_offset, _limit, _query, _sort);
+            limit = _limit;
+            return this;
+        }
 
-            if (_maxMin == "MAX")
-                return _sortedDB.Rows[_sortedDB.Rows.Count - 1];
-            else if (_maxMin == "MIN")
-                return _sortedDB.Rows[0];
-            else
+        /// <summary>
+        /// Thêm truy vấn cho bản ghi
+        /// </summary>
+        /// <param name="_queryList">Danh sách truy vấn gồm số chẵn các phần tử. Truy vấn thứ i có phần tử 2 * i là tên cột, 2 * i + 1 là giá trị hoặc giá trị con (CONTAIN)"</param>
+        /// <returns></returns>
+        public DataProcessing Query(List<string> _queryList)
+        {
+            queryList = _queryList ?? queryList;
+            return this;
+        }
+
+        /// <summary>
+        /// Danh sách các cột cần lấy (nên chứa ít nhất một cột PRIMARY KEY hoặc UNIQUE)
+        /// </summary>
+        public DataProcessing Select(List<string> _columnsList)
+        {
+            columnsList = _columnsList;
+            return this;
+        }
+
+        /// <summary>
+        /// Thứ tự sắp xếp
+        /// </summary>
+        /// <param name="_sortList">Điều kiện sắp xếp, có dạng “... asc/desc", cách nhau bởi dấu phẩy.</param>
+        /// <returns></returns>
+        public DataProcessing Sort(string _sortList)
+        {
+            sortList = _sortList;
+            return this;
+        }
+
+        /// <summary>
+        /// Lấy dữ liệu hàng đầu tiên trả về (kết hợp với Offset(), Limit(), Query(), Select(), Sort())
+        /// </summary>
+        /// <returns>null nếu thất bại, DataRow nếu thành công</returns>
+        public DataRow? GetFirstRow()
+        {
+            DataTable? _dt = Get();
+            
+            if (_dt == null)
                 return null;
+            else
+                return _dt.Rows[0];
         }
 
         /// <summary>
-        /// Return number of elements
+        /// Số lượng bản ghi
         /// </summary>
-        /// <returns></returns>
-        public int GetLength()
+        public int Length()
         {
-            return length;
+            return ListElements.Count;
         }
 
         /// <summary>
-        /// Return Offset and Limit value at the moment
+        /// Thêm bản ghi mới
         /// </summary>
-        /// <returns></returns>
-        public Tuple<int, int> GetOffsetLimitNow()
+        /// <param name="_element">Bản ghi mới. Thỏa mãn các yêu cầu về khóa hằng số.</param>
+        /// <returns>StatusCode: OK (1): Thành công; Error (2): Thất bại</returns>
+        public int Insert(JObject _element)
         {
-            Tuple<int, int> _tuple = Tuple.Create(Offset, Limit);
-            return _tuple;
-        }
+            PrevListElements = ListElements;
 
-        /// <summary>
-        /// Add a new element to data and show new data grid view
-        /// </summary>
-        /// <param name="_element">Element in JObject type</param>
-        /// <return>Return DataTable</return>
-        public DataTable AddNewElement(JObject _element)
-        {
+            if(_element == null)
+            {
+                MessageBox.Show("Không thể thêm phần tử mới: Phần tử mới rỗng (null)!", "Error");
+                return StatusCode.Error;
+            }
+
             try
             {
-                if (_element != null)
+                foreach (var _col in ColumnsSetting)
                 {
-                    _element.Add(new JProperty("delete", false));
-                    ListElements.Add(_element);
-
-                    length++;
-
-                    DataTable _x = GetList(length + 1, DEFAULT_LIMIT, Condition, Columns);
-                    MessageBox.Show("Added new element!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    return _x;
+                    if ((_col.Key.Contains("NOT NULL") == true || _col.Key.Contains("PRIMARY KEY") == true) && _element[_col.Name] == null)
+                    {
+                        MessageBox.Show("Không thể thêm phần tử mới: " + _col.Name + " chứa giá trị NULL trong khi cột được đặt là NOT NULL!", "Error");
+                        return StatusCode.Error;
+                    }
+                    else if (_col.Key.Contains("PRIMARY KEY") == true || _col.Key.Contains("UNIQUE") == true)
+                    {
+                        foreach (var _row in ListElements)
+                            if (_element[_col.Name].ToString().ToLower() == _row[_col.Name].ToString().ToLower())
+                            {
+                                MessageBox.Show("Không thể thêm phần tử mới: " + _col.Name + " chứa giá trị trùng lặp trong khi cột được đặt là UNIQUE!", "Error");
+                                return StatusCode.Error;
+                            }
+                    }
                 }
-                else
-                    throw new Exception();
+
+                ListElements.Add(_element);
+                MessageBox.Show("Đã thêm phần tử mới!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return StatusCode.OK;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Couldn't add a new element\n" + ex, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
+                MessageBox.Show("Không thể thêm phần tử mới: Có lỗi trong quá trình duyệt dữ liệu\nChi tiết lỗi:\n" + ex, "Error");
+                return StatusCode.Error;
             }
         }
 
         /// <summary>
-        /// Delete all elements in data source
+        /// Xóa tất cả bản ghi
         /// </summary>
-        /// <return>Return DataTable</return>
-        public DataTable DeleteAllElements()
+        public void DeleteAll()
         {
+            PrevListElements = ListElements;
             ListElements.Clear();
-            length = 0;
-
-            return GetList(length + 1, Limit, Condition, Columns);
         }
 
         /// <summary>
-        /// Delete a element in range
+        /// Xóa (các) bản ghi thỏa mãn điều kiện (kết hợp với Offset(), Limit(), Query(), Select(), Sort())
         /// </summary>
-        /// <param name="_dataTable">(DataTable) DataGridView.DataSource</param>
-        /// <param name="_indexInTable">Index in Table (with Offset and Limit)</param>
-        public void DeleteElementInRange(DataTable _dataTable, int _indexInTable)
+        /// <returns>StatusCode: OK (1): Thành công; Error (2): Thất bại</returns>
+        public int Delete()
         {
-            if (_dataTable == null || _indexInTable >= _dataTable.Rows.Count)
-            {
-                MessageBox.Show("Couldn't delete element", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            else
-            {
-                if (_dataTable.Rows[_indexInTable].Table.Columns.Contains("NotDelete") == true)
-                {
-                    if (_dataTable.Rows[_indexInTable].Field<bool>("NotDelete") == false)
-                    {
-                        foreach (var _i in SelectedRow)
-                            if (_i.Item2 == _indexInTable)
-                            {
-                                ListElements.RemoveAt(_i.Item1);
-                                length--;
+            PrevListElements = ListElements;
 
-                                break;
-                            }
-
-                        return;
-                    }
-                    else
-                    {
-                        MessageBox.Show("You don't have permission to delete this element", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                }
-                else
-                {
-                    foreach (var _i in SelectedRow)
-                        if (_i.Item2 == _indexInTable)
-                        {
-                            ListElements.RemoveAt(_i.Item1);
-                            length--;
-
-                            break;
-                        }
-
-                    return;
-                }
-            }
-        }
-        /// <summary>
-        /// Change Element in range
-        /// </summary>
-        /// <param name="_dataTable">(DataTable) DataGridView.DataSource</param>
-        /// <param name="_indexInTable">Index in Table (with Offset and Limit)</param>
-        public void ChangeElementInRange(DataTable _dataTable, int _indexInTable)
-        {
-            if (_dataTable == null || _indexInTable >= _dataTable.Rows.Count)
-            {
-                MessageBox.Show("Couldn't change element", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            else
-            {
-                foreach (var _i in SelectedRow)
-                    if (_i.Item2 == _indexInTable)
-                    {
-                        if (Columns != null)
-                        {
-                            for (int _j = 0; _j < Columns.Count; _j++)
-                            {
-                                string _columnName = Columns[_j];
-                                ListElements[_i.Item1][_columnName] = JToken.FromObject(_dataTable.Rows[_i.Item2].ItemArray[_j]);
-                            }
-                        }
-                        else
-                        {
-                            for (int _j = 0; _j < ShowColumnsName.Count; _j++)
-                            {
-                                string _columnName = ShowColumnsName[_j];
-                                ListElements[_i.Item1][_columnName] = JToken.FromObject(_dataTable.Rows[_i.Item2].ItemArray[_j]);
-                            }
-                        }
-
-                        break;
-                    }
-
-                return;
-            }
-        }
-
-        /// <summary>
-        /// Change all Elements which satisfy with conditions
-        /// </summary>
-        /// <param name="_query">Queries List</param>
-        /// <param name="_newValue">New value in JObject</param>
-        /// <return>Return DataTable</return>
-        public void ChangeElementswithCondition(List<string> _query, JObject _newValue)
-        {
             try
             {
-                if (_query.Count % 2 != 0 && (_query.Count != 1 || _query[0] != "SAME"))
-                    throw new Exception();
+                List<int>? removeList = GetAllSatisfy();
 
-                DataTable _dataTable = new DataTable();
+                if (removeList == null)
+                    return StatusCode.Error;
 
-                for (int _i = 0; _i < length; _i++)
-                {
-                    bool _isSatisfy = true;
+                removeList.Reverse();
+                foreach (var item in removeList)
+                    ListElements.RemoveAt(item);
 
-                    if (_query.Count > 0)
-                    {
-                        for (int _j = 0; _j < _query.Count; _j += 2)
-                        { 
-                            var _elementObj = ListElements[_i][_query[_j]];
-                            if (_elementObj == null)
-                                continue;
-
-                            string x = _elementObj.ToString();
-
-                            if (_query[_j + 1].Length > 7 && _query[_j + 1].Substring(0, 7) == "CONTAIN")
-                            {
-                                string _compareValue = _query[_j + 1].Substring(7, _query[_j + 1].Length - 7);
-
-                                if (x.Contains(_compareValue) == false)
-                                {
-                                    _isSatisfy = false;
-                                    break;
-                                }
-                            }
-                            else if (x != _query[_j + 1])
-                            {
-                                _isSatisfy = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (_isSatisfy == false)
-                        continue;
-
-                    foreach(JProperty jProperty in _newValue.Properties())
-                        ListElements[_i][jProperty.Name] = jProperty.Value;
-
-                }
-
-                return;
+                return StatusCode.OK;
             }
             catch (Exception ex)
             {
-                DialogResult _errorDialog = MessageBox.Show("Couldn't get or change data\n" + ex, "Error", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
-
-                if (_errorDialog == DialogResult.OK)
-                    Application.Exit();
-                return;
+                MessageBox.Show("Không thể xóa phần tử: Có lỗi trong quá trình xóa. Hệ thống đã tự động quay về bản dữ liệu trước khi thực hiện thao tác.\nChi tiết lỗi:\n" + ex, "Error");
+                Undo();
+                return StatusCode.Error;
             }
         }
+
+        /// <summary>
+        /// Cập nhật (các) bản ghi thỏa mãn điều kiện (kết hợp với Offset(), Limit(), Query(), Select(), Sort())
+        /// </summary>
+        /// <returns>StatusCode: OK (1): Thành công; Error (2): Thất bại</returns>
+        public int Update(JObject _newValue)
+        {
+            PrevListElements = ListElements;
+
+            if(_newValue == null)
+            {
+                MessageBox.Show("Không thể cập nhật phần tử: Phần tử cập nhật rỗng!", "Error");
+                return StatusCode.Error;
+            }
+            try
+            {
+                List<int>? updateList = GetAllSatisfy();
+
+                if(updateList == null)
+                    return StatusCode.Error;
+
+                foreach (var _col in ColumnsSetting)
+                {
+                    if ((_col.Key.Contains("NOT NULL") == true || _col.Key.Contains("PRIMARY KEY") == true) && _newValue[_col.Name] == null)
+                    {
+                        MessageBox.Show("Không thể cập nhật phần tử: " + _col.Name + " chứa giá trị NULL trong khi cột được đặt là NOT NULL!", "Error");
+                        return StatusCode.Error;
+                    }
+                    else if (_col.Key.Contains("PRIMARY KEY") == true || _col.Key.Contains("UNIQUE") == true)
+                    {
+                        for (int _i = 0; _i < ListElements.Count; _i++)
+                            if (updateList.Contains(_i) == false && _newValue[_col.Name].ToString().ToLower() == ListElements[_i][_col.Name].ToString().ToLower())
+                            {
+                                MessageBox.Show("Không thể cập nhật phần tử: " + _col.Name + " chứa giá trị trùng lặp trong khi cột được đặt là UNIQUE!", "Error");
+                                return StatusCode.Error;
+                            }                                
+                    }
+                }
+
+                foreach (var item in updateList)
+                    foreach (JProperty jProperty in _newValue.Properties())
+                        ListElements[item][jProperty.Name] = jProperty.Value;
+
+                return StatusCode.OK;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Không thể cập nhật phần tử: Có lỗi trong quá trình cập nhật. Hệ thống đã tự động quay về bản dữ liệu trước khi thực hiện thao tác.\nChi tiết lỗi:\n" + ex, "Error");
+                Undo();
+                return StatusCode.Error;
+            }
+        }
+
         public static JObject ConvertDataRowToJObject(DataRow _dataRow)
         {
-            JObject _returnObj = new JObject();
+            JObject _returnObj = new();
 
-            foreach(DataColumn _col in _dataRow.Table.Columns)
+            foreach (DataColumn _col in _dataRow.Table.Columns)
                 _returnObj.Add(_col.ColumnName, JToken.FromObject(_dataRow[_col]));
 
             return _returnObj;
         }
+
         public JArray Export()
         {
-            JArray _returnToken = new JArray();
+            JArray _returnToken = new();
             foreach (var _p in ListElements)
                 _returnToken.Add(_p);
 
             JArray _returnData = JArray.FromObject(_returnToken);
 
-            _returnData.Descendants()
-            .OfType<JProperty>()
-            .Where(x => x.Name == "delete")
-            .ToList()
-            .ForEach(x => x.Remove());
-
-            MessageBox.Show("Export all data!", "Success", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-
             return _returnData;
         }
 
         /// <summary>
-        /// Copy data to another DataProcessing _x
+        /// Quay lại bản dữ liệu trước đó
         /// </summary>
-        /// <param name="_x"></param>
-        public void CopyData(DataProcessing _x)
+        /// <returns>StatusCode: OK (1): Thành công; Error (2): Thất bại</returns>
+        public int Undo()
         {
-            List<string> _newColumnName = new List<string>(ShowColumnsName);
-            List<Type> _newColumnType = new List<Type>(ShowColumnsType);
-            JArray _newListElements = new JArray(ListElements);
-
-            _x.Import(_newColumnName, _newColumnType);
-            _x.Import(_newListElements);
+            try
+            {
+                ListElements = PrevListElements;
+                return StatusCode.OK;
+            }
+            catch
+            {
+                return StatusCode.Error;
+            }
         }
     }
 }

@@ -102,6 +102,12 @@ namespace Learning_System.ExternalClass
         {
             try
             {
+                if (queryList == null || columnsList == null)
+                {
+                    MessageBox.Show("Danh sách truy vấn và danh sách cột không thể là null (sử dụng .EmptyList cho list rỗng)!", "Error");
+                    return null;
+                }
+
                 if (queryList.Count % 2 != 0)
                 {
                     MessageBox.Show("Danh sách truy vấn cần có số chẵn các phần tử!", "Error");
@@ -264,14 +270,19 @@ namespace Learning_System.ExternalClass
                 MessageBox.Show("Không thể lấy dữ liệu!\nChi tiết lỗi:\n" + ex, "Error");
                 return null;
             }
-            finally
-            {
-                queryList = EmptyList;
-                columnsList = EmptyList;
-                sortList = null;
-                limit = DEFAULT_LIMIT;
-                offset = 0;
-            }
+        }
+
+        /// <summary>
+        /// Reset các điều kiện
+        /// </summary>
+        public DataProcessing Init()
+        {
+            queryList = EmptyList;
+            columnsList = EmptyList;
+            sortList = null;
+            limit = DEFAULT_LIMIT;
+            offset = 0;
+            return this;
         }
 
         /// <summary>
@@ -299,7 +310,7 @@ namespace Learning_System.ExternalClass
         /// <returns></returns>
         public DataProcessing Query(List<string> _queryList)
         {
-            queryList = _queryList ?? queryList;
+            queryList = _queryList;
             return this;
         }
 
@@ -408,6 +419,9 @@ namespace Learning_System.ExternalClass
         {
             PrevListElements = ListElements;
 
+            if(this == null)
+                return StatusCode.Error;
+
             try
             {
                 List<int>? removeList = GetAllSatisfy();
@@ -419,6 +433,7 @@ namespace Learning_System.ExternalClass
                 foreach (var item in removeList)
                     ListElements.RemoveAt(item);
 
+                MessageBox.Show("Đã xóa thành công (các) phần tử!", "Success");
                 return StatusCode.OK;
             }
             catch (Exception ex)
@@ -436,6 +451,9 @@ namespace Learning_System.ExternalClass
         public int Update(JObject _newValue)
         {
             PrevListElements = ListElements;
+
+            if(this == null)
+                return StatusCode.Error;
 
             if(_newValue == null)
             {
@@ -471,6 +489,7 @@ namespace Learning_System.ExternalClass
                     foreach (JProperty jProperty in _newValue.Properties())
                         ListElements[item][jProperty.Name] = jProperty.Value;
 
+                MessageBox.Show("Đã cập nhật thành công (các) phần tử!", "Success");
                 return StatusCode.OK;
             }
             catch (Exception ex)
@@ -505,18 +524,9 @@ namespace Learning_System.ExternalClass
         /// <summary>
         /// Quay lại bản dữ liệu trước đó
         /// </summary>
-        /// <returns>StatusCode: OK (1): Thành công; Error (2): Thất bại</returns>
-        public int Undo()
+        public void Undo()
         {
-            try
-            {
-                ListElements = PrevListElements;
-                return StatusCode.OK;
-            }
-            catch
-            {
-                return StatusCode.Error;
-            }
+             ListElements = PrevListElements;
         }
     }
 }

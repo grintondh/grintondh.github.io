@@ -164,7 +164,7 @@ categoriesDataTable = categoriesData.Offset(0).Limit(50).Get();
 ```
 
 | Tên hàm | Cách gọi hàm | Bắt buộc (?) | Giá trị tham số | Giá trị mặc định (nếu không gọi) | Kiểu biến tham số | Ví dụ gọi hàm |
-| -- | -- | -- | -- | -- | -- | -- |
+| --- | --- | --- | --- | --- | --- | --- |
 | Khởi tạo tham số | Init() | Bắt buộc |  |  |  | ```.Init()``` |
 | Offset | Offset(offset) | Không bắt buộc | Lấy từ vị trí nào | 0 | int | ```.Offset(20)``` |
 | Limit | Limit(limit) | Không bắt buộc | Lấy báo nhiêu vị trí | DEFAULT_LIMIT (= 25) | int | ```.Limit(10)`` |

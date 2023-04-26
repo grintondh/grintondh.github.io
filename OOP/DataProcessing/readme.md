@@ -167,7 +167,7 @@ categoriesDataTable = categoriesData.Offset(0).Limit(50).Get();
 | --- | --- | --- | --- | --- | --- | --- |
 | Khởi tạo tham số | Init() | Bắt buộc |  |  |  | ```.Init()``` |
 | Offset | Offset(offset) | Không bắt buộc | Lấy từ vị trí nào | 0 | int | ```.Offset(20)``` |
-| Limit | Limit(limit) | Không bắt buộc | Lấy báo nhiêu vị trí | DEFAULT_LIMIT (= 25) | int | ```.Limit(10)`` |
+| Limit | Limit(limit) | Không bắt buộc | Lấy báo nhiêu vị trí | DEFAULT_LIMIT (= 25) | int | ```.Limit(10)``` |
 | Truy vấn | Query(query) | Không bắt buộc | Gồm n điều kiện. List query gồm 2 * n phần tử, phần tử 2 * i (chẵn) là tên property, 2 * i + 1 (lẻ tương ứng) là giá trị điều kiện. Đọc về "CONTAIN" ở phía dưới | EmptyList (không có điều kiện) | List<string> | ```List<string> query = new() { "Id", "CONTAIN 30" }; .Query(query)``` |
 | Cột | Select(columns) | Không bắt buộc | Tên các cột cần lấy | EmptyList (lấy toàn bộ cột) | List<string> | ```List<string> select = new() { "Name", "Password" }; .Select(select)``` |
 | Sắp xếp | Sort(sorts) | Không bắt buộc | Điều kiện sắp xếp, có dạng "<tên cột> asc/desc", cách nhau bởi dấu phẩy. Ví dụ: "id asc, name desc": Sắp xếp tăng dần theo id, nếu trùng id thì giảm dần theo name. | null (không có truy vấn sắp xếp) | string | ```DataRow? _maxIdRow = categoriesData.Offset(0).Limit(15).Sort("Id desc, Name asc").Get()``` |

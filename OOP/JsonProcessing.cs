@@ -1,12 +1,8 @@
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.IO;
 using System.Net;
 using System.Text;
-using System.Windows.Forms;
 
-namespace Calculator
+namespace Learning_System.ExternalClass
 {
     /// <summary>
     /// Methods for processing Json file
@@ -36,7 +32,7 @@ namespace Calculator
 
                 try
                 {
-                    var _webRequest = (HttpWebRequest)HttpWebRequest.Create(sampleJsonWebPath);
+                    var _webRequest = (HttpWebRequest)WebRequest.Create(sampleJsonWebPath);
                     _webRequest.UserAgent = "Simple Calculator";
 
                     var _response = _webRequest.GetResponse();
@@ -99,7 +95,7 @@ namespace Calculator
             }
             catch
             {
-                DialogResult userReturnDialog = MessageBox.Show("Error in getting users info! ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DialogResult userReturnDialog = MessageBox.Show("Error in getting file information! ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 if (userReturnDialog == DialogResult.OK)
                     Application.Exit();
@@ -116,10 +112,10 @@ namespace Calculator
         /// <param name="sampleContent">The content you want to import if we need to create a new one for you (provided that you can't access to your web path)</param>
         /// <returns>Your data in JArray format. If something get error, it will return a null value.</returns>
         public static JArray ImportJsonContentInDefaultFolder(string JsonPath, string sampleJsonWebPath, string sampleContent)
-        {
+        { 
             try
             {
-                using (var _JsonFile = JsonProcessing.GetFileJsonInDefaultFolder(JsonPath, sampleJsonWebPath, sampleContent))
+                using (var _JsonFile = GetFileJsonInDefaultFolder(JsonPath, sampleJsonWebPath, sampleContent))
                 {
                     JArray _JsonData = JArray.Parse(_JsonFile.ReadToEnd());
                     return _JsonData;

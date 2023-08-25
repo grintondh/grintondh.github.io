@@ -1,0 +1,236 @@
+[
+    {
+        "course_name": "Lesson 7 - Làm bài kiểm tra",
+        "course_time": 1800,
+        "pass_score": 115,
+        "preparation_code": "<ul><li>Dọn dẹp bàn học rộng rãi, thoáng mát.</li><li>Thời gian làm phần 1A và 2 (trên máy) là <b>30 phút</b>. <b>Không có thời gian dừng</b>.</li><li>Hướng dẫn: Chuyển qua các phần khác (listening, reading,...) bằng cách nhấn vào phần đó trong ô phía trên.</li><li>Nếu bấm kiểm tra không chạy thì đợi khoảng 5s rồi bấm lại.</li><li><b>Không nhấn F5 trong khi đang học vì sẽ bị mất hết dữ liệu</b>. Khi làm xong bài nào nhớ bấm 'Kiểm tra' hoặc 'Hoànthành' để kiểm tra cũng như lưu lại điểm. Khi hết giờ, hệ thống cũng sẽ chấm lại toàn bộ các bài, kể cả các bàiđang làm nhưng chưa bấm 'Hoàn thành' hay 'Kiểm tra'.</li></ul>",
+        "parts_code": [
+            "P1A0",
+            "P1A1",
+            "P1A2",
+            "P1A3",
+            "P1A4",
+            "P20",
+            "P21",
+            "P22",
+            "P23",
+            "P24"
+        ],
+        "parts_name": [
+            "Phần 1: Vocabulary",
+            "1A - Question 1",
+            "1A - Question 2",
+            "1A - Question 3",
+            "1A - Question 4",
+            "Phần 2: Grammar",
+            "2 - Question 1",
+            "2 - Question 2",
+            "2 - Question 3",
+            "2 - Question 4"
+        ],
+        "course_content": [
+            [
+                {
+                    "header": "PART 1A: Vocabulary - Animal (80 points)",
+                    "instruction": "4 câu hỏi tiếp theo sẽ kiểm tra từ vựng chủ đề Animal đã học dưới dạng các bài đọc / viết / nghe.",
+                    "question_content": "",
+                    "answer_content": "",
+                    "button_show": "",
+                    "part_instruction": "",
+                    "answer_note": "",
+                    "answer": [
+                    ],
+                    "points": 0
+                }
+            ],
+            [
+                {
+                    "header": "PART 1A: Vocabulary - Animal (80 points)",
+                    "instruction": "",
+                    "question_content": "[?1] Điền tên các con vật đúng với miêu tả đã cho (20 điểm)",
+                    "answer_content": "<table><tr><th>Miêu tả - Description</th><th>Tên con vật tương ứng - Animal's name</th></tr><tr><td>It has a colorful fur and a long fur. It can fly. It can speak like human!</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>It can swim. It is very smart. It is very friendly to human.</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>It is a pet. It sounds 'Go go go'.</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>It has 4 legs and a big white fur. It sounds 'beeeee'</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>It has a long tail. It can climb (n: trèo) tree.</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>It has a long tail. Cats often catch (v: bắt) them.</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>It has a short tail. It can run very fast. It often has a white fur. There is a fairy tale (n: truyện cổ tích) about it.</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>It lives (v: sống) in very cold places. It has a black-and-white fur. It can swim and walk.</td><td><input type='text' name='user_input' placeholder=''></td></tr></table>",
+                    "button_show": "Kiểm tra",
+                    "part_instruction": "Trả lời đúng [?1]",
+                    "answer_note": "Điền tên viết thường, dạng số ít của các con vật",
+                    "answer": [
+                        "parrot",
+                        "dolphin",
+                        "dog",
+                        "sheep",
+                        "monkey",
+                        "mouse",
+                        "rabbit",
+                        "penguin"
+                    ],
+                    "points": 20
+                }
+            ],
+            [
+                {
+                    "header": "PART 1A: Vocabulary - Animal (80 points)",
+                    "instruction": "",
+                    "question_content": "[?2] Nhìn hình và viết tên các con vật (20 điểm)<br>Di chuột vào ảnh để tự động phóng to ảnh. Di ra ngoài để trở về bình thường.",
+                    "answer_content": "<table><tr><td><img src='https://images.unsplash.com/photo-1600804340584-c7db2eacf0bf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHVwcHl8ZW58MHx8MHx8&w=1000&q=80'width='180px'></td><td><img src='https://bondleather.com/wp-content/uploads/2020/07/Da-ca-sau-Crocodile-la-gi-Chat-lieu-da-cao-cap-17.jpg'width='180px'></td><td><img src='https://animals.sandiegozoo.org/sites/default/files/2016-11/animals_hero_giraffe_1_0.jpg'width='180px'></td></tr><tr><td><input type='text' name='user_input' placeholder=''></td><td><input type='text' name='user_input' placeholder=''></td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td><img src='https://i.natgeofe.com/n/9d00782c-b410-4e9c-aeb5-564fa290bb82/ostrich_thumb_3x4.JPG'width='180px'></td><td><img src='https://images.twinkl.co.uk/tw1n/image/private/t_630/u/ux/hippo-image_ver_1.jpg' width='180px'></td><td><img src='http://icdn.dantri.com.vn/zoom/1200_630/2022/07/20/camapkhongxuongfaam-crop-crop-1658282229415.jpeg'width='180px'></td></tr><tr><td><input type='text' name='user_input' placeholder=''></td><td><input type='text' name='user_input' placeholder=''></td><td><input type='text' name='user_input' placeholder=''></td></tr></table>",
+                    "button_show": "Kiểm tra",
+                    "part_instruction": "Trả lời đúng [?2]",
+                    "answer_note": "Viết thường các đáp án, dạng số ít của các con vật",
+                    "answer": [
+                        "puppy",
+                        "crocodile",
+                        "giraffe",
+                        "ostrich",
+                        "hippo",
+                        "shark"
+                    ],
+                    "points": 20
+                }
+            ],[
+                {
+                    "header": "PART 1A: Vocabulary - Animal (80 points)",
+                    "instruction": "",
+                    "question_content": "[?3] Nghe và sắp xếp thứ tự các con vật được nêu (20 điểm)<br>Có 7 con vật, trong đó 2 con vật sẽ không được nêu tên. Chỉ cho phép nghe 3 lần.",
+                    "answer_content": "<audio src='https://docs.google.com/uc?export=open&id=1wLxqvHHwVQ4rdDvfv4HSIbH58DacjdJN' controls preload='auto' type='audio/mp3'></audio><br><br><table><tr><th>Từ tiếng Anh</th><th>Số thứ tự nêu</th></tr><tr><td>panda</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>bat</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>whale</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>snail</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>kangaroo</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>zoo</td><td>1</td></tr><tr><td>zebra</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>monkey</td><td><input type='text' name='user_input' placeholder=''></td></tr></table>",
+                    "button_show": "Kiểm tra",
+                    "part_instruction": "Trả lời đúng [?3]",
+                    "answer_note": "Viết các số 2 - 6 theo thứ tự xuất hiện của từ (như từ zoo được nêu đầu tiên nên đánh số 1). Từ không được nêu điền 0.",
+                    "answer": [
+                        "4",
+                        "5",
+                        "0",
+                        "6",
+                        "2",
+                        "3",
+                        "0"
+                    ],
+                    "points": 20
+                }
+            ],[
+                {
+                    "header": "PART 1A: Vocabulary - Animal (80 points)",
+                    "instruction": "",
+                    "question_content": "[?4] Nghe điền vào chỗ trống (20 điểm)Chỉ cho phép nghe 3 lần.",
+                    "answer_content": "<audio src='https://docs.google.com/uc?export=open&id=1LciuK6GJBfPNjXQuEQLILzh7E7MvoFEJ' controls preload='auto' type='audio/mp3'></audio><br><br>The <input type='text' name='user_input' placeholder=''> in the zoo is look, look, looking,<br>Look, look, looking; look, look, looking.<br>The <input type='text' name='user_input' placeholder=''> in the zoo is look, look, looking.<br>All day long!<br><br>Grandma at the <input type='text' name='user_input' placeholder=''> goes look at that, look at that, look at that,<br>Grandma at the <input type='text' name='user_input' placeholder=''> goes look at that.<br>All day long!<br><br>The <input type='text' name='user_input' placeholder=''> in the zoo is jump, jump, jumping,<br>Jump, jump, jumping; jump, jump, jumping.<br>The <input type='text' name='user_input' placeholder=''> in the zoo is jump, jump, jumping.<br>All day long!<br><br><input type='text' name='user_input' placeholder=''> at the zoo says what is that? what is that? what is that?<br><input type='text' name='user_input' placeholder=''> at the zoo says what is that?<br>All day long!<br><br>",
+                    "button_show": "Kiểm tra",
+                    "part_instruction": "Trả lời đúng [?4]",
+                    "answer_note": "Viết thường các đáp án (kể cả đầu dòng)",
+                    "answer": [
+                        "giraffe",
+                        "giraffe",
+                        "zoo",
+                        "zoo",
+                        "elephant",
+                        "elephant",
+                        "sister",
+                        "sister"
+                    ],
+                    "points": 20
+                }
+            ],[
+                {
+                    "header": "PART 2: Grammar - A / An, Plural ; To be + Subject Pronouns (100 points)",
+                    "instruction": "4 câu hỏi tiếp theo sẽ kiểm tra ngữ pháp A / An, Plural ; To be + Subject Pronouns đã học dưới dạng các bài đọc / viết / nghe.",
+                    "question_content": "",
+                    "answer_content": "",
+                    "button_show": "",
+                    "part_instruction": "",
+                    "answer_note": "",
+                    "answer": [
+                    ],
+                    "points": 0
+                }
+            ],[
+                {
+                    "header": "PART 2: Grammar (100 points)",
+                    "instruction": "",
+                    "question_content": "[?5] Điền dạng số ít / số nhiều của các danh từ (25 điểm)",
+                    "answer_content": "<table><tr><th>Dạng số ít (singular)</th><th>Dạng số nhiều (plural)</th></tr><tr><td>a bus</td><td>three <input type='text' name='user_input' placeholder=''></td></tr><tr><td>a mouse</td><td>four <input type='text' name='user_input' placeholder=''></td></tr><tr><td>a tomato</td><td>two <input type='text' name='user_input' placeholder=''></td></tr><tr><td>a sheep</td><td>six <input type='text' name='user_input' placeholder=''></td></tr><tr><td>a watch</td><td>ten <input type='text' name='user_input' placeholder=''></td></tr><tr><td>a cherry</td><td>four <input type='text' name='user_input' placeholder=''></td></tr><tr><td>a toy</td><td>nine <input type='text' name='user_input' placeholder=''></td></tr><tr><td>a fan</td><td>six <input type='text' name='user_input' placeholder=''></td></tr></table>",
+                    "button_show": "Kiểm tra",
+                    "part_instruction": "Trả lời đúng [?5]",
+                    "answer_note": "Viết thường các đáp án",
+                    "answer": [
+                        "buses",
+                        "mice",
+                        "tomatoes",
+                        "sheep",
+                        "watches",
+                        "cherries",
+                        "toys",
+                        "fans"
+                    ],
+                    "points": 25
+                }
+            ],[
+                {
+                    "header": "PART 2: Grammar (100 points)",
+                    "instruction": "",
+                    "question_content": "[?6] Nhìn hình và đếm các đồ vật cho trước (25 điểm) (theo mẫu)",
+                    "answer_content": "<table><tr><th>Picture</th><th>Dạng số nhiều (plural)</th></tr><tr><td><img src='https://i.ibb.co/MfyvFng/image-2022-10-09-224255442.png' width='100px'></td><td>(mouse) six mice</td></tr><tr><td><img src='https://i.ibb.co/Q7W80Q5/image-2022-10-09-224057764.png' width='100px'></td><td>(cherry) <input type='text' name='user_input' placeholder=''></td></tr><tr><td><img src='https://i.ibb.co/3FYz9h5/image-2022-10-09-224331723.png' width='100px'></td><td>(dress) <input type='text' name='user_input' placeholder=''></td></tr><tr><td><img src='https://i.ibb.co/M294gdv/image-2022-10-09-224417196.png' width='100px'></td><td>(tomato) <input type='text' name='user_input' placeholder=''></td></tr><tr><td><img src='https://i.ibb.co/FgLk2SR/image-2022-10-09-224446802.png' width='100px'></td><td>(pen) <input type='text' name='user_input' placeholder=''></td></tr><tr><td><img src='https://i.ibb.co/1LCj12z/image-2022-10-09-224520976.png' width='100px'></td><td>(watch) <input type='text' name='user_input' placeholder=''></td></tr><tr><td><img src='https://i.ibb.co/x1Q0xRF/image-2022-10-09-224609077.png' width='100px'></td><td>(child) <input type='text' name='user_input' placeholder=''></td></tr><tr><td>a fan</td><td>six <input type='text' name='user_input' placeholder=''></td></tr></table>",
+                    "button_show": "Kiểm tra",
+                    "part_instruction": "Trả lời đúng [?6]",
+                    "answer_note": "Viết thường các đáp án",
+                    "answer": [
+                        "ten cherries",
+                        "three dresses",
+                        "six tomatoes",
+                        "twelve pens",
+                        "seven watches",
+                        "four children"
+                    ],
+                    "points": 25
+                }
+            ],[
+                {
+                    "header": "PART 2: Grammar (100 points)",
+                    "instruction": "",
+                    "question_content": "[?7] Điền vào chỗ trống theo mẫu (25 điểm)",
+                    "answer_content": "<table><tr><td><img src='https://i.ibb.co/1qjMWR5/image-2022-10-07-102019286.png' width='150px'></td><td><img src='https://i.ibb.co/ZG1X6rw/image-2022-10-07-102155119.png' width='150px'></td><td><img src='https://i.ibb.co/tzTRDs4/image-2022-10-07-102305287.png' width='150px'></td></tr><tr><td>0. boy: He is a boy.</td><td>1. man: <input type='text' name='user_input' placeholder=''></td><td>2. disk: <input type='text' name='user_input' placeholder=''></td></tr><td><img src='https://i.ibb.co/6nxP63Z/image-2022-10-07-102335577.png' width='150px'></td><td><img src='https://i.ibb.co/QrvFZx4/image-2022-10-07-102415091.png' width='150px'></td><td><img src='https://i.ibb.co/zG3bv2D/image-2022-10-07-102442838.png' width='150px'></td></tr><tr><td>3. woman: <input type='text' name='user_input' placeholder=''></td><td>4. mouse: <input type='text' name='user_input' placeholder=''></td><td>5. girl: <input type='text' name='user_input' placeholder=''></td></tr></table>",
+                    "button_show": "Kiểm tra",
+                    "part_instruction": "Trả lời đúng [?7]",
+                    "answer_note": "Đầu câu viết hoa, cuối câu có dấu thích hợp, viết đúng chính tả.",
+                    "answer": [
+                        "He is a man.",
+                        "It is a disk.",
+                        "She is a woman.",
+                        "It is a mouse.",
+                        "She is a girl."
+                    ],
+                    "points": 25
+                }
+            ],
+            [
+                {
+                    "header": "PART 2: Grammar (100 points)",
+                    "instruction": "",
+                    "question_content": "[?8] Nghe và điền vào câu trả lời đúng (25 điểm)",
+                    "answer_content": "<audio controls preload='auto' src='https://docs.google.com/uc?export=open&amp;id=10RVkMbyWvoByacuA5uL8MDXxI74fST0S' type='audio/mp3'></audio><br><table><tr><td>A. Zoe is happy.</td><td>B. Zoe isn’t happy.</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>A. Brian is a good singer.</td><td>B. Brian is a bad singer.</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>A. It’s an iguana.</td><td>B. It’s an alligator.</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>A. The classroom is big.</td><td>B. The classroom is small.</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>A. The cherries are good.</td><td>B. The cherries are bad.</td><td><input type='text' name='user_input' placeholder=''></td></tr><tr><td>A. They are good friends.</td><td>B. They aren’t good friends.</td><td><input type='text' name='user_input' placeholder=''></td></tr></table>",
+                    "button_show": "Kiểm tra",
+                    "part_instruction": "Trả lời đúng [?8]",
+                    "answer_note": "Nếu đáp án A đúng, điền A; đáp án B đúng, điền B.",
+                    "answer": [
+                        "A",
+                        "B",
+                        "A",
+                        "B",
+                        "A",
+                        "A"
+                    ],
+                    "points": 25
+                }
+            ],
+            [
+                {
+                    "header": "Chúc mừng bạn đã hoàn thành",
+                    "instruction": "Nhấn nút F11 để thoát màn hình. Chúc mừng bạn đã hoàn thành bài tập. Hãy nộp kết quả của bạn qua Zalo.",
+                    "question_content": "<b>Nhấn nút Kết thúc bài học, lấy điện thoại chụp số điểm và thời gian còn lại rồi gửi cho anh qua Zalo.</b>",
+                    "answer_content": "",
+                    "button_show": "Đã gửi qua Zalo!",
+                    "part_instruction": "",
+                    "answer_note": "",
+                    "answer": [
+                    ],
+                    "points": 0
+                }
+            ]
+        ]
+    }
+]

@@ -3,6 +3,10 @@
         "course_name": "Lesson 7 - Làm bài kiểm tra",
         "course_time": 1800,
         "pass_score": 115,
+        "allowCheck": 1,
+        "allowPartialScore": 1,
+        "allowShowPartialAns": 0,
+        "allowPrevBtn": 0,
         "preparation_code": "<ul><li>Dọn dẹp bàn học rộng rãi, thoáng mát.</li><li>Thời gian làm phần 1A và 2 (trên máy) là <b>30 phút</b>. <b>Không có thời gian dừng</b>.</li><li>Hướng dẫn: Chuyển qua các phần khác (listening, reading,...) bằng cách nhấn vào phần đó trong ô phía trên.</li><li>Nếu bấm kiểm tra không chạy thì đợi khoảng 5s rồi bấm lại.</li><li><b>Không nhấn F5 trong khi đang học vì sẽ bị mất hết dữ liệu</b>. Khi làm xong bài nào nhớ bấm 'Kiểm tra' hoặc 'Hoànthành' để kiểm tra cũng như lưu lại điểm. Khi hết giờ, hệ thống cũng sẽ chấm lại toàn bộ các bài, kể cả các bàiđang làm nhưng chưa bấm 'Hoàn thành' hay 'Kiểm tra'.</li></ul>",
         "parts_code": [
             "P1A0",
@@ -14,7 +18,8 @@
             "P21",
             "P22",
             "P23",
-            "P24"
+            "P24",
+            "PTest"
         ],
         "parts_name": [
             "Phần 1: Vocabulary",
@@ -26,7 +31,8 @@
             "2 - Question 1",
             "2 - Question 2",
             "2 - Question 3",
-            "2 - Question 4"
+            "2 - Question 4",
+            "Thử nghiệm"
         ],
         "course_content": [
             [
@@ -221,12 +227,14 @@
                 {
                     "header": "Chúc mừng bạn đã hoàn thành",
                     "instruction": "Nhấn nút F11 để thoát màn hình. Chúc mừng bạn đã hoàn thành bài tập. Hãy nộp kết quả của bạn qua Zalo.",
-                    "question_content": "<b>Nhấn nút Kết thúc bài học, lấy điện thoại chụp số điểm và thời gian còn lại rồi gửi cho anh qua Zalo.</b>",
+                    "question_content": "<p>Please select your favorite Web language:</p><input type='checkbox' id='html' name='user_input' value='HTML'><label for='html'>HTML</label><br><input type='checkbox' id='css' name='user_input' value='CSS'><label for='css'>CSS</label><br>",
                     "answer_content": "",
-                    "button_show": "Đã gửi qua Zalo!",
+                    "button_show": "Kiểm tra",
                     "part_instruction": "",
                     "answer_note": "",
                     "answer": [
+                        "HTML",
+                        ""
                     ],
                     "points": 0
                 }

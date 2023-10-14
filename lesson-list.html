@@ -91,9 +91,16 @@
         <div id="filter-show">
         </div>
 
-        <table class="table table-striped table-hover text-center" id="expanable-table">
-            
+        <table class="table table-striped table-hover text-center">
+            <thead><td>Bài học quan trọng</td></thead>
         </table>
+            <table class="table table-striped table-hover text-center" id="expanable-important-table">
+            </table>
+        <table class="table table-striped table-hover text-center">
+            <thead><td>Bài học khác</td></thead>
+        </table>
+            <table class="table table-striped table-hover text-center" id="expanable-table">
+            </table>
     </div>
 
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -139,10 +146,36 @@
           url: 'contest.json', 
           dataType: 'json',
           success: function (data) { 
-            let htmlData = '<tr><th scope="col">STT</th><th scope="col">Tên bài học</th><th scope="col">Ngày tạo</th><th scope="col">Hạn nộp</th><th scope="col">Trạng thái</th><th scope="col">File đề bài</th><th scope="col">File đáp án</th><th scope="col">Tags</th></tr>';
-            let no_num = 0;
+            let headerTable = '<tr><th scope="col">Tên bài học</th><th scope="col">Ngày tạo</th><th scope="col">Hạn nộp</th><th scope="col">Trạng thái</th><th scope="col">File đề bài</th><th scope="col">File đáp án</th><th scope="col">Tags</th></tr>';
+            let htmlData = headerTable + LoopOverData(data, tagQuery, 0);
+            document.getElementById("expanable-table").innerHTML = htmlData;
 
-            $.each(data, function(index, element) {
+            htmlData = headerTable + LoopOverData(data, tagQuery, 1);
+            document.getElementById("expanable-important-table").innerHTML = htmlData;
+          }
+        });
+      }
+
+      function SwitchToDarkLight(dark) {
+        let element = document.body;
+        element.classList.toggle("dark");
+
+        element = $("#expanable-table");
+        element.toggleClass("table-dark");
+        
+        element = $(".category-succeed");
+        element.toggleClass("category-dark");
+
+        element = $(".category-error");
+        element.toggleClass("category-dark");
+
+        element = $(".category-warning");
+        element.toggleClass("category-dark");
+      }
+
+      function LoopOverData(data, tagQuery, imp) {
+        let htmlData = "";
+        $.each(data, function(index, element) {
               let tag_exist = false;
               $.each(element.tags, function(index, subtag) {
                   if (subtag == tagQuery) {
@@ -153,6 +186,9 @@
 
               if (tagQuery != '' && tag_exist == false)
                 return ;
+
+              if (element.important != imp)
+                  return ;
 
               let hide_expired = $("#overdeadline").prop("checked");
               let expired_converted = new Date(element.date_deadline + "T00:00:00.000Z");
@@ -168,10 +204,11 @@
               else if (hide_graded == true && element.status == "DONE")
                 return ;
               else {
-                no_num++;
+                if (element.important == 1)
+                  htmlData += "<tr><td><b>" + element.name + "</b></td>";
+                else
+                  htmlData += "<tr><td>" + element.name + "</td>";
 
-                htmlData += "<tr><td><scope='row'>" + no_num + "</td>";
-                htmlData += "<td>" + element.name + "</td>";
                 htmlData += "<td>" + element.date_created + "</td>";
                 htmlData += "<td>" + element.date_deadline + "</td>";
                   
@@ -204,26 +241,7 @@
               }
             });
 
-            document.getElementById("expanable-table").innerHTML = htmlData;
-          }
-        });
-      }
-
-      function SwitchToDarkLight(dark) {
-        let element = document.body;
-        element.classList.toggle("dark");
-
-        element = $("#expanable-table");
-        element.toggleClass("table-dark");
-        
-        element = $(".category-succeed");
-        element.toggleClass("category-dark");
-
-        element = $(".category-error");
-        element.toggleClass("category-dark");
-
-        element = $(".category-warning");
-        element.toggleClass("category-dark");
+          return htmlData;
       }
     </script>
 </body>
